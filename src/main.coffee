@@ -44,6 +44,13 @@ class Project
   configPath : ->
     Path.join(@cwd, "config.yml")
     
+  testScriptIncludes: ->
+    tags = for path in Glob(Path.join(@cwd, "test", "**", "*.#{@language()}"))
+      script = path.replace(@cwd, '')
+      "<script src='#{script}' type='text/javascript'></script>"
+      
+    tags.join("\n")
+
   scriptIncludes : ->
     scripts = _([])
 
@@ -54,8 +61,6 @@ class Project
         if not scripts.include? path
           scripts.push path
 
-    sys.puts JSON.stringify(scripts)
-          
     tags = for script in scripts.value()
       "<script src='#{script}' type='text/javascript'></script>"
       
