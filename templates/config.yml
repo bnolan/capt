@@ -1,11 +1,11 @@
 
 javascripts:
-  - lib/jquery.js
-  - lib/underscore.js
-  - lib/backbone.js
-  - app/controllers/*.coffee
-  - app/views/**/*.coffee
-  - app/models/*.coffee
+  - 'lib/jquery.js'
+  - 'lib/underscore.js'
+  - 'lib/backbone.js'
+  - 'app/controllers/*.coffee'
+  - 'app/views/**/*.coffee'
+  - 'app/models/*.coffee'
 
 stylesheets:
-  - public/stylesheets/*.css
+  - 'public/stylesheets/*.css'

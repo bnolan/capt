@@ -1,6 +1,7 @@
 fs = require('fs')
 sys = require('sys')
 Path = require("path")
+Glob = require("glob").globSync
 
 root = __dirname + "/../"
 server = require("#{root}/lib/router").getServer()
@@ -31,6 +32,8 @@ raise = (error) ->
 class Project
   constructor: (cwd) ->
     @cwd = cwd
+    @root = cwd
+    @yaml = yaml.eval(fs.readFileSync(@configPath()) + "")
 
   name : ->
     @cwd.replace(/.+\//,'')
@@ -41,34 +44,45 @@ class Project
   configPath : ->
     Path.join(@cwd, "config.yml")
     
-  yaml : ->
-    yaml.eval(fs.readFileSync(@configPath()))
-    
   scriptIncludes : ->
-    for pathspec in yaml.javascripts
+    scripts = _([])
+
+    for pathspec in @yaml.javascripts
+      for path in Glob(Path.join(@cwd, pathspec))
+        path = path.replace(@cwd, '')
+        
+        if not scripts.include? path
+          scripts.push path
+
+    sys.puts JSON.stringify(scripts)
+          
+    tags = for script in scripts.value()
+      "<script src='#{script}' type='text/javascript'></script>"
       
-    fs.readdirSync
+    tags.join("\n")
     
   styleIncludes : ->
     
-    
-currentProject ||= new Project(process.cwd())
 
 #
 # Start the server
 #  
 if data.arguments[0] == "server"
-  project = currentProject()
-
+  project = new Project(process.cwd())
+  
   server.get "/", (req, res, match) ->
     "<html><head></head><body>Hello world!</body></html>"
 
   server.get "/test/", (req, res) ->
     ejs = fs.readFileSync("#{root}/templates/html/runner.html") + ""
-    sys.puts(typeof ejs)
     _.template(ejs, { project : project })
     # 
     # "<html><head></head><body>Hello world!</body></html>"
+
+  server.get /test(.*)/, (req, res, file) ->
+    sys.puts "wtf?"
+    # server.staticHandler("test/#{file}")
+    res.simpleText(200, fs.readFileSync(Path.join(project.root, 'test', file)) + "\n\n\n")
     
   server.get new RegExp("^/app/$"), (req, res, match) ->
     "Hello #{match}!"
@@ -84,7 +98,7 @@ if data.arguments[0] == "new"
 
   sys.puts " * Creating folders"
 
-  dirs = ["", "app", "app/views", "app/views/jst", "app/controllers", "app/models", "config", "lib", "public", "public/stylesheets", "test", "test/controllers", "test/views", "test/models", "test/fixtures"]
+  dirs = ["", "app", "app/views", "app/views/jst", "app/controllers", "app/models", "lib", "public", "public/stylesheets", "test", "test/controllers", "test/views", "test/models", "test/fixtures"]
   
   for dir in dirs
     fs.mkdirSync "#{project}/#{dir}", 0755
@@ -97,6 +111,7 @@ if data.arguments[0] == "new"
     "lib/backbone.js" : "http://documentcloud.github.com/backbone/backbone.js"
     "test/qunit.js" : "http://github.com/jquery/qunit/raw/master/qunit/qunit.js"
     "test/qunit.css" : "http://github.com/jquery/qunit/raw/master/qunit/qunit.css"
+    "config.yml" : Path.join(root, "templates/config.yml")
   }
   
   downloadLibrary = (path, lib) ->
@@ -104,8 +119,14 @@ if data.arguments[0] == "new"
       if (!error && response.statusCode == 200)
         fs.writeFileSync("#{project}/#{path}", body)
 
+  copyLibrary = (path, lib) ->
+    fs.writeFileSync(Path.join(project, path), fs.readFileSync(lib) + "")
+  
   for path, lib of libs
-    downloadLibrary(path, lib)
+    if lib.match(/^http/)
+      downloadLibrary(path, lib)
+    else
+      copyLibrary(path, lib)
     
   # sys.puts "Done.\n"
 
@@ -114,7 +135,7 @@ if data.arguments[0] == "new"
 #
 
 if data.arguments[0] == "generate" and data.arguments[1] == "model"
-  project = currentProject()
+  project = new Project(process.cwd())
 
   name = data.arguments[2] or raise("Must supply a name for the model")
 
