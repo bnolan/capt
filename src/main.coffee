@@ -71,21 +71,20 @@ if data.arguments[0] == "server"
   project = new Project(process.cwd())
   
   server.get "/", (req, res, match) ->
-    "<html><head></head><body>Hello world!</body></html>"
+    ejs = fs.readFileSync("#{project.root}/index.jst") + ""
+    _.template(ejs, { project : project })
 
   server.get "/test/", (req, res) ->
-    ejs = fs.readFileSync("#{root}/templates/html/runner.html") + ""
+    ejs = fs.readFileSync("#{root}/templates/html/runner.jst") + ""
     _.template(ejs, { project : project })
-    # 
-    # "<html><head></head><body>Hello world!</body></html>"
 
-  server.get /test(.*)/, (req, res, file) ->
+  server.get /(.*)/, (req, res, file) ->
     sys.puts "wtf?"
     # server.staticHandler("test/#{file}")
-    res.simpleText(200, fs.readFileSync(Path.join(project.root, 'test', file)) + "\n\n\n")
-    
-  server.get new RegExp("^/app/$"), (req, res, match) ->
-    "Hello #{match}!"
+    try
+      res.simpleText(200, fs.readFileSync(Path.join(project.root, file)) + "\n\n\n")
+    catch e
+      res.notFound()
 
   server.listen(3000)
   
@@ -112,6 +111,7 @@ if data.arguments[0] == "new"
     "test/qunit.js" : "http://github.com/jquery/qunit/raw/master/qunit/qunit.js"
     "test/qunit.css" : "http://github.com/jquery/qunit/raw/master/qunit/qunit.css"
     "config.yml" : Path.join(root, "templates/config.yml")
+    "index.jst" : Path.join(root, "templates/html/index.jst")
   }
   
   downloadLibrary = (path, lib) ->
@@ -137,61 +137,16 @@ if data.arguments[0] == "new"
 if data.arguments[0] == "generate" and data.arguments[1] == "model"
   project = new Project(process.cwd())
 
-  name = data.arguments[2] or raise("Must supply a name for the model")
+  if data.arguments[2]
+    model = data.arguments[2].toLowerCase()
+  else
+    raise("Must supply a name for the model")
 
-  files = {
-    "app/models/#{name}.#{project.language}" : "
-class #{name.capitalize()} < Backbone.Model
-  initializer: ->
-    # ...
-    
-this.#{name.capitalize()} = #{name.capitalize()}
-",
+  copyFile = (from, to) ->
+    ejs = fs.readFileSync(from) + ""
+    fs.writeFileSync(Path.join(project.root, to), _.template(ejs, { project : project, model : model }))
+    sys.puts "Created #{to}"
 
-    "test/fixtures/#{name}s.yml" : "
-one:
-  # ...
-
-two:
-  # ...
-",
-
-    "test/models/#{name}.#{project.language}" : "
-module('#{name} model');
-
-test('model exists'), ->
-  ok(#{model.capitalize()})
-  
-test('truth'), ->
-  ok(true)
-
-  
-
-"
-  }
-  
-  
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  copyFile "#{root}/templates/models/model.coffee", "app/models/#{model}.#{project.language()}"
+  copyFile "#{root}/templates/models/test.coffee", "test/models/#{model}.#{project.language()}"
+  copyFile "#{root}/templates/models/fixture.yml", "test/fixtures/#{model}.yml"
