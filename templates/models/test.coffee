@@ -1,7 +1,7 @@
 module('<%= model %> model');
 
-test('model exists'), ->
+test 'model exists', ->
   ok(<%= model.capitalize() %>)
   
-test('truth'), ->
+test 'truth', ->
   ok(true)

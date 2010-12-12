@@ -3,6 +3,7 @@ javascripts:
   - 'lib/jquery.js'
   - 'lib/underscore.js'
   - 'lib/backbone.js'
+  - 'lib/coffeescript.js'
   - 'app/controllers/*.coffee'
   - 'app/views/**/*.coffee'
   - 'app/models/*.coffee'

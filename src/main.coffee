@@ -4,10 +4,11 @@ Path = require("path")
 Glob = require("glob").globSync
 
 root = __dirname + "/../"
-server = require("#{root}/lib/router").getServer()
+router = require("#{root}/lib/router")
 request = require("#{root}/lib/request")
 _ = require("#{root}/lib/underscore")
 yaml = require("#{root}/lib/yaml")
+server = router.getServer()
 
 String.prototype.capitalize = ->
   this.charAt(0).toUpperCase() + this.substring(1).toLowerCase()
@@ -44,10 +45,16 @@ class Project
   configPath : ->
     Path.join(@cwd, "config.yml")
     
+  getScriptTagFor: (path) ->
+    if path.match(/coffee$/)
+      "<script src='#{path}' type='text/coffeescript'></script>"
+    else
+      "<script src='#{path}' type='text/javascript'></script>"
+      
   testScriptIncludes: ->
     tags = for path in Glob(Path.join(@cwd, "test", "**", "*.#{@language()}"))
       script = path.replace(@cwd, '')
-      "<script src='#{script}' type='text/javascript'></script>"
+      @getScriptTagFor script
       
     tags.join("\n")
 
@@ -62,7 +69,7 @@ class Project
           scripts.push path
 
     tags = for script in scripts.value()
-      "<script src='#{script}' type='text/javascript'></script>"
+      @getScriptTagFor script
       
     tags.join("\n")
     
@@ -83,13 +90,15 @@ if data.arguments[0] == "server"
     ejs = fs.readFileSync("#{root}/templates/html/runner.jst") + ""
     _.template(ejs, { project : project })
 
-  server.get /(.*)/, (req, res, file) ->
-    sys.puts "wtf?"
-    # server.staticHandler("test/#{file}")
-    try
-      res.simpleText(200, fs.readFileSync(Path.join(project.root, file)) + "\n\n\n")
-    catch e
-      res.notFound()
+  server.get /(.*)/, router.staticDirHandler(project.root, '/')
+  
+  # (req, res, file) ->
+  #   sys.puts "wtf?"
+  #   # server.staticHandler("test/#{file}")
+  #   try
+  #     res.simpleText(200, fs.readFileSync(Path.join(project.root, file)) + "\n\n\n")
+  #   catch e
+  #     res.notFound()
 
   server.listen(3000)
   
@@ -113,6 +122,7 @@ if data.arguments[0] == "new"
     "lib/jquery.js" : "http://code.jquery.com/jquery-1.4.4.js", 
     "lib/underscore.js" : "http://documentcloud.github.com/underscore/underscore.js"
     "lib/backbone.js" : "http://documentcloud.github.com/backbone/backbone.js"
+    "lib/coffeescript.js" : "http://jashkenas.github.com/coffee-script/extras/coffee-script.js"
     "test/qunit.js" : "http://github.com/jquery/qunit/raw/master/qunit/qunit.js"
     "test/qunit.css" : "http://github.com/jquery/qunit/raw/master/qunit/qunit.css"
     "config.yml" : Path.join(root, "templates/config.yml")

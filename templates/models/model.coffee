@@ -1,4 +1,4 @@
-class <%= model.capitalize() %> < Backbone.Model
+class <%= model.capitalize() %> extends Backbone.Model
   initializer: ->
     # ...
     
