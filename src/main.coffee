@@ -52,6 +52,32 @@ task 'server', 'start a webserver', (arguments) ->
 
   server.listen(3000)
 
+task 'watch', 'watch files and regenerate test.html and index.html as needed', (arguments) ->
+  project = new Project(process.cwd())
+
+  timer = null
+  
+  doRebuild = ->
+    sys.puts "Rebuilt project..."
+    
+    ejs = fs.readFileSync("#{project.root}/index.jst") + ""
+    fs.writeFileSync("#{project.root}/index.html", _.template(ejs, { project : project }))
+
+    ejs = fs.readFileSync("#{root}/templates/html/runner.jst") + ""
+    fs.writeFileSync("#{root}/test.html", _.template(ejs, { project : project }))
+
+  rebuild = ->
+    if timer 
+      clearTimeout timer
+
+    timer = setTimeout(doRebuild, 25)
+
+  for script in project.getFilesToWatch()
+    fs.watchFile Path.join(project.root, script), ->
+      rebuild()
+      
+  rebuild()
+
 task 'new', 'create a new project', (arguments) ->
   project = arguments[0] or raise("Must supply a name for new project.")
 
@@ -69,6 +95,7 @@ task 'new', 'create a new project', (arguments) ->
     "lib/underscore.js" : "http://documentcloud.github.com/underscore/underscore.js"
     "lib/backbone.js" : "http://documentcloud.github.com/backbone/backbone.js"
     "lib/coffeescript.js" : "http://jashkenas.github.com/coffee-script/extras/coffee-script.js"
+    "lib/less.js" : "https://github.com/cloudhead/less.js/raw/master/dist/less-1.0.40.js"
     "test/qunit.js" : "http://github.com/jquery/qunit/raw/master/qunit/qunit.js"
     "test/qunit.css" : "http://github.com/jquery/qunit/raw/master/qunit/qunit.css"
     "config.yml" : Path.join(root, "templates/config.yml")
@@ -120,5 +147,6 @@ task 'generate controller', 'create a new controller', (arguments) ->
     fs.writeFileSync(Path.join(project.root, to), _.template(ejs, { project : project, controller : controller }))
     sys.puts "Created #{to}"
 
+  fs.mkdirSync "#{project.root}/app/controllers/views/#{controller}", 0755
   copyFile "#{root}/templates/controllers/controller.coffee", "app/controllers/#{controller}_controller.#{project.language()}"
   copyFile "#{root}/templates/controllers/test.coffee", "test/controllers/#{controller}_controller.#{project.language()}"

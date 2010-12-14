@@ -4,6 +4,7 @@ javascripts:
   - 'lib/underscore.js'
   - 'lib/backbone.js'
   - 'lib/coffeescript.js'
+  - 'lib/less.js'
   - 'app/controllers/*.coffee'
   - 'app/views/**/*.coffee'
   - 'app/models/*.coffee'

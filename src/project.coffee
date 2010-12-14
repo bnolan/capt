@@ -25,10 +25,16 @@ class Project
     
   getScriptTagFor: (path) ->
     if path.match(/coffee$/)
-      "<script src='#{path}' type='text/coffeescript'></script>"
+      "<script src='./#{path}' type='text/coffeescript'></script>"
     else
-      "<script src='#{path}' type='text/javascript'></script>"
+      "<script src='./#{path}' type='text/javascript'></script>"
       
+  getStyleTagFor: (path) ->
+    if path.match(/less$/)
+  	  "<link href='./#{path}' rel='stylesheet/less' type='text/css' />"
+    else
+  	  "<link href='./#{path}' media='screen' rel='stylesheet' type='text/css' />"
+
   testScriptIncludes: ->
     tags = for path in Glob(Path.join(@cwd, "test", "**", "*.#{@language()}"))
       script = path.replace(@cwd, '')
@@ -36,20 +42,42 @@ class Project
       
     tags.join("\n")
 
-  scriptIncludes : ->
+  getFilesToWatch : ->
+    result = @getScriptDependencies()
+    result.push 'index.jst'
+    result
+    
+  getScriptDependencies : ->
     scripts = _([])
 
     for pathspec in @yaml.javascripts
       for path in Glob(Path.join(@cwd, pathspec))
         path = path.replace(@cwd, '')
         scripts.push path
+        
+    scripts.value()
+    
+  getStylesheetDependencies : ->
+    result = []
 
-    tags = for script in scripts.value()
-      @getScriptTagFor script
+    for pathspec in @yaml.stylesheets
+      for path in Glob(Path.join(@cwd, pathspec))
+        path = path.replace(@cwd, '')
+        result.push path
+        
+    result
+    
+  stylesheetIncludes : ->
+    tags = for css in @getStylesheetDependencies()
+      @getStyleTagFor css
       
     tags.join("\n")
     
-  styleIncludes : ->
+  scriptIncludes : ->
+    tags = for script in @getScriptDependencies()
+      @getScriptTagFor script
+      
+    tags.join("\n")
     
 
 exports.Project = Project

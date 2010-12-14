@@ -1,4 +1,4 @@
-class <%= controller.capitalize() %> extends Backbone.Controller
+class <%= controller.capitalize() %>Controller extends Backbone.Controller
   routes :
     "<%= controller %>-:cid-edit" : "edit"
     "<%= controller %>-new" : "new"
@@ -11,5 +11,4 @@ class <%= controller.capitalize() %> extends Backbone.Controller
   index: ->
     @_views['<%= controller %>-index'] ||= new <%= controller.capitalize() %>IndexView
     
-Backbone._controllers ||= []
-Backbone._controllers.push(<%= controller.capitalize() %>Controller)
+new <%= controller.capitalize() %>Controller
