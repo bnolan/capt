@@ -15,6 +15,9 @@ class Project
     @root = cwd
     @yaml = yaml.eval(fs.readFileSync(@configPath()) + "")
 
+    # Include these sections of the config.yml (eg nokia, android or web)
+    @targets = []
+
   name : ->
     @cwd.replace(/.+\//,'')
 
@@ -46,7 +49,7 @@ class Project
   bundleJavascript : (filename) ->
     index = 0
     
-    inputs = for script in @getScriptDependencies('production')
+    inputs = for script in @getScriptDependencies()
       index++
       if script.match /coffee$/
         exec("coffee -p -c #{@root}#{script} > /tmp/#{index}.js")
@@ -64,22 +67,29 @@ class Project
     result.push 'index.jst'
     result
     
-  getScriptDependencies : (env) ->
-    if !env
-      env = 'development'
-      
-    if env == 'development'
-      scripts = _(['/lib/coffeescript.js', '/lib/less.js'])
-    else
-      scripts = _([])
-      
+  getScriptDependencies : () ->
+    # if !env
+    #   env = 'development'
+    #   
+    # if env == 'development'
+    #   scripts = _(['/lib/coffeescript.js', '/lib/less.js'])
+    # else
+    #   
 
-    for pathspec in @yaml.javascripts
+    scripts = _([])
+
+    for pathspec in @yaml.common
       for path in Glob(Path.join(@cwd, pathspec))
         path = path.replace(@cwd, '')
         scripts.push path
-        
-    scripts.value()
+
+    for target in @targets
+      for pathspec in @yaml[target]
+        for path in Glob(Path.join(@cwd, pathspec))
+          path = path.replace(@cwd, '')
+          scripts.push path
+
+    scripts.unique()
     
   getStylesheetDependencies : ->
     result = []

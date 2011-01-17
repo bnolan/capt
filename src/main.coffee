@@ -39,6 +39,7 @@ task = (command, description, func) ->
 #  
 task 'server', 'start a webserver', (arguments) ->
   project = new Project(process.cwd())
+  project.targets = arguments
 
   server.get "/", (req, res, match) ->
     ejs = fs.readFileSync("#{project.root}/index.jst") + ""
@@ -54,14 +55,21 @@ task 'server', 'start a webserver', (arguments) ->
 
 task 'build', 'concatenate and minify all javascript and stylesheets for production', (arguments) ->
   project = new Project(process.cwd())
+  project.targets = arguments
 
   sys.puts "Building #{project.name()}..."
 
+  if project.targets.length > 0
+    sys.puts " * Targets: #{project.targets.join(', ')}"
+
   sys.puts " * Javascript.."
+  sys.puts "   - " + project.getScriptDependencies().join("\n   - ")
+  
   project.bundleJavascript("#{project.root}/bundled-javascript.js")
 
 task 'watch', 'watch files and regenerate test.html and index.html as needed', (arguments) ->
   project = new Project(process.cwd())
+  project.targets = arguments
 
   timer = null
   
