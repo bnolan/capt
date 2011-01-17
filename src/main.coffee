@@ -81,11 +81,18 @@ task 'build', 'concatenate and minify all javascript and stylesheets for product
   
   project.bundleJavascript("#{output}/bundled-javascript.js")
 
+  sys.puts " * #{output}/bundled-stylesheet.css"
+  sys.puts "   - " + project.getStylesheetDependencies().join("\n   - ")
+
+  project.bundleStylesheet("#{output}/bundled-stylesheet.css")
+
+  sys.puts " * #{output}/index.html"
+
   project.scriptIncludes = ->
     project.getScriptTagFor('/bundled-javascript.js')
   
   project.stylesheetIncludes = ->
-    project.getStyleTagFor('/bundled-stylesheet.js')
+    project.getStyleTagFor('/bundled-stylesheet.css')
   
   ejs = fs.readFileSync("#{project.root}/index.jst") + ""
   fs.writeFileSync("#{output}/index.html", _.template(ejs, { project : project }))

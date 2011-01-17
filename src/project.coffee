@@ -46,6 +46,23 @@ class Project
       
     tags.join("\n")
 
+  bundleStylesheet : (filename) ->
+    index = 0
+    
+    inputs = for script in @getStylesheetDependencies()
+      index++
+      if script.match /less$/
+        exec("lessc #{@root}#{script} > /tmp/#{index}.css")
+        "\"/tmp/#{index}.css\""
+      else
+        "\"#{@root}#{script}\""
+
+    inputs = inputs.join " "
+
+    # sys.puts("sleep 5; cat #{inputs} > /tmp/stylesheet.css; java -jar #{root}/bin/yuicompressor-2.4.2.jar --type css --charset utf-8 /tmp/stylesheet.css -o #{filename}")
+    exec("sleep 5; cat #{inputs} > /tmp/stylesheet.css; java -jar #{root}/bin/yuicompressor-2.4.2.jar --type css --charset utf-8 /tmp/stylesheet.css -o #{filename}")
+
+
   bundleJavascript : (filename) ->
     index = 0
     
