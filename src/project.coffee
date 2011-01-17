@@ -3,6 +3,7 @@ sys = require('sys')
 yaml = require("#{root}/lib/yaml")
 Path = require("path")
 Glob = require("glob").globSync
+exec = require('child_process').exec
 _ = require("#{root}/lib/underscore")
 
 String.prototype.capitalize = ->
@@ -25,15 +26,15 @@ class Project
     
   getScriptTagFor: (path) ->
     if path.match(/coffee$/)
-      "<script src='./#{path}' type='text/coffeescript'></script>"
+      "<script src='.#{path}' type='text/coffeescript'></script>"
     else
-      "<script src='./#{path}' type='text/javascript'></script>"
+      "<script src='.#{path}' type='text/javascript'></script>"
       
   getStyleTagFor: (path) ->
     if path.match(/less$/)
-  	  "<link href='./#{path}' rel='stylesheet/less' type='text/css' />"
+  	  "<link href='.#{path}' rel='stylesheet/less' type='text/css' />"
     else
-  	  "<link href='./#{path}' media='screen' rel='stylesheet' type='text/css' />"
+  	  "<link href='.#{path}' media='screen' rel='stylesheet' type='text/css' />"
 
   testScriptIncludes: ->
     tags = for path in Glob(Path.join(@cwd, "test", "**", "*.#{@language()}"))
@@ -42,13 +43,36 @@ class Project
       
     tags.join("\n")
 
+  bundleJavascript : (filename) ->
+    index = 0
+    
+    inputs = for script in @getScriptDependencies('production')
+      index++
+      if script.match /coffee$/
+        exec("coffee -p -c #{@root}#{script} > /tmp/#{index}.js")
+        "--js /tmp/#{index}.js"
+      else
+        "--js #{@root}#{script}"
+
+    inputs = inputs.join " "
+
+    sys.puts "java -jar #{root}/bin/compiler.jar #{inputs} --js_output_file #{filename}"
+    exec("sleep 5; java -jar #{root}/bin/compiler.jar #{inputs} --js_output_file #{filename}")
+    
   getFilesToWatch : ->
     result = @getScriptDependencies()
     result.push 'index.jst'
     result
     
-  getScriptDependencies : ->
-    scripts = _([])
+  getScriptDependencies : (env) ->
+    if !env
+      env = 'development'
+      
+    if env == 'development'
+      scripts = _(['/lib/coffeescript.js', '/lib/less.js'])
+    else
+      scripts = _([])
+      
 
     for pathspec in @yaml.javascripts
       for path in Glob(Path.join(@cwd, pathspec))

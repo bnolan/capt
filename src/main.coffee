@@ -52,6 +52,14 @@ task 'server', 'start a webserver', (arguments) ->
 
   server.listen(3000)
 
+task 'build', 'concatenate and minify all javascript and stylesheets for production', (arguments) ->
+  project = new Project(process.cwd())
+
+  sys.puts "Building #{project.name()}..."
+
+  sys.puts " * Javascript.."
+  project.bundleJavascript("#{project.root}/bundled-javascript.js")
+
 task 'watch', 'watch files and regenerate test.html and index.html as needed', (arguments) ->
   project = new Project(process.cwd())
 
@@ -147,6 +155,6 @@ task 'generate controller', 'create a new controller', (arguments) ->
     fs.writeFileSync(Path.join(project.root, to), _.template(ejs, { project : project, controller : controller }))
     sys.puts "Created #{to}"
 
-  fs.mkdirSync "#{project.root}/app/controllers/views/#{controller}", 0755
+  fs.mkdirSync "#{project.root}/app/views/#{controller}", 0755
   copyFile "#{root}/templates/controllers/controller.coffee", "app/controllers/#{controller}_controller.#{project.language()}"
   copyFile "#{root}/templates/controllers/test.coffee", "test/controllers/#{controller}_controller.#{project.language()}"
