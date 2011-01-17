@@ -61,11 +61,35 @@ task 'build', 'concatenate and minify all javascript and stylesheets for product
 
   if project.targets.length > 0
     sys.puts " * Targets: #{project.targets.join(', ')}"
+  else
+    sys.puts "You must specify a target (eg web)"
 
-  sys.puts " * Javascript.."
+  try
+    fs.mkdirSync "#{project.root}/build", 0755
+  catch e
+    # .. ok ..
+
+  output = "#{project.root}/build/#{project.targets[0]}"
+  
+  try
+    fs.mkdirSync output, 0755
+  catch e
+    # .. ok ..
+
+  sys.puts " * #{output}/bundled-javascript.js"
   sys.puts "   - " + project.getScriptDependencies().join("\n   - ")
   
-  project.bundleJavascript("#{project.root}/bundled-javascript.js")
+  project.bundleJavascript("#{output}/bundled-javascript.js")
+
+  project.scriptIncludes = ->
+    project.getScriptTagFor('/bundled-javascript.js')
+  
+  project.stylesheetIncludes = ->
+    project.getStyleTagFor('/bundled-stylesheet.js')
+  
+  ejs = fs.readFileSync("#{project.root}/index.jst") + ""
+  fs.writeFileSync("#{output}/index.html", _.template(ejs, { project : project }))
+
 
 task 'watch', 'watch files and regenerate test.html and index.html as needed', (arguments) ->
   project = new Project(process.cwd())

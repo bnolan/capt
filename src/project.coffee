@@ -59,7 +59,7 @@ class Project
 
     inputs = inputs.join " "
 
-    sys.puts "java -jar #{root}/bin/compiler.jar #{inputs} --js_output_file #{filename}"
+    # sys.puts "java -jar #{root}/bin/compiler.jar #{inputs} --js_output_file #{filename}"
     exec("sleep 5; java -jar #{root}/bin/compiler.jar #{inputs} --js_output_file #{filename}")
     
   getFilesToWatch : ->
@@ -92,14 +92,14 @@ class Project
     scripts.unique()
     
   getStylesheetDependencies : ->
-    result = []
+    result = _([])
 
     for pathspec in @yaml.stylesheets
       for path in Glob(Path.join(@cwd, pathspec))
         path = path.replace(@cwd, '')
         result.push path
         
-    result
+    result.unique()
     
   stylesheetIncludes : ->
     tags = for css in @getStylesheetDependencies()
