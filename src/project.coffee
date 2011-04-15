@@ -95,22 +95,22 @@ class Project
 
     scripts = _([])
 
-    for pathspec in @yaml.common
+    for pathspec in @yaml.javascripts
       for path in Glob(Path.join(@cwd, pathspec))
         path = path.replace(@cwd, '').replace(/^[.\/]+/,'/')
         scripts.push path
-
-    for target in @targets
-      for pathspec in @yaml[target]
-        for path in Glob(Path.join(@cwd, pathspec))
-          path = path.replace(@cwd, '')
-          scripts.push path
+    # 
+    # for target in @targets
+    #   for pathspec in @yaml[target]
+    #     for path in Glob(Path.join(@cwd, pathspec))
+    #       path = path.replace(@cwd, '')
+    #       scripts.push path
 
     scripts.unique()
     
   getDependencies: (section) ->
     result = _([])
-
+    
     for pathspec in @yaml[section]
       for path in Glob(Path.join(@cwd, pathspec))
         path = path.replace(@cwd, '').replace(/^[.\/]+/,'/')
