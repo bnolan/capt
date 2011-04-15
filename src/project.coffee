@@ -25,15 +25,15 @@ class Project
     
   getScriptTagFor: (path) ->
     if path.match(/coffee$/)
-      "<script src='./#{path}' type='text/coffeescript'></script>"
+      "<script src='#{path}' type='text/coffeescript'></script>"
     else
-      "<script src='./#{path}' type='text/javascript'></script>"
+      "<script src='#{path}' type='text/javascript'></script>"
       
   getStyleTagFor: (path) ->
     if path.match(/less$/)
-  	  "<link href='./#{path}' rel='stylesheet/less' type='text/css' />"
+  	  "<link href='#{path}' rel='stylesheet/less' type='text/css' />"
     else
-  	  "<link href='./#{path}' media='screen' rel='stylesheet' type='text/css' />"
+  	  "<link href='#{path}' media='screen' rel='stylesheet' type='text/css' />"
 
   testScriptIncludes: ->
     tags = for path in Glob(Path.join(@cwd, "test", "**", "*.#{@language()}"))
@@ -52,11 +52,21 @@ class Project
 
     for pathspec in @yaml.javascripts
       for path in Glob(Path.join(@cwd, pathspec))
-        path = path.replace(@cwd, '')
+        path = path.replace(@cwd, '').replace(/^[.\/]+/,'/')
         scripts.push path
         
     scripts.value()
     
+  getDependencies: (section) ->
+    result = _([])
+
+    for pathspec in @yaml[section]
+      for path in Glob(Path.join(@cwd, pathspec))
+        path = path.replace(@cwd, '').replace(/^[.\/]+/,'/')
+        result.push path
+
+    result.value()
+
   getStylesheetDependencies : ->
     result = []
 
@@ -73,6 +83,15 @@ class Project
       
     tags.join("\n")
     
+  specIncludes : ->
+    tags = for script in @getScriptDependencies()
+      @getScriptTagFor script
+      
+    for script in @getDependencies('specs')
+      tags.push @getScriptTagFor script
+    
+    tags.join("\n")
+
   scriptIncludes : ->
     tags = for script in @getScriptDependencies()
       @getScriptTagFor script

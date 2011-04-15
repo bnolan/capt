@@ -63,8 +63,8 @@ task 'watch', 'watch files and regenerate test.html and index.html as needed', (
     ejs = fs.readFileSync("#{project.root}/index.jst") + ""
     fs.writeFileSync("#{project.root}/index.html", _.template(ejs, { project : project }))
 
-    ejs = fs.readFileSync("#{root}/templates/html/runner.jst") + ""
-    fs.writeFileSync("#{root}/test.html", _.template(ejs, { project : project }))
+    ejs = fs.readFileSync("#{project.root}/spec/index.jst") + ""
+    fs.writeFileSync("#{project.root}/spec/index.html", _.template(ejs, { project : project }))
 
   rebuild = ->
     if timer 
