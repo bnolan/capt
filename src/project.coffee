@@ -29,7 +29,6 @@ class Project
     
   getScriptTagFor: (path) ->
     if path.match(/coffee$/)
-<<<<<<< HEAD
       "<script src='#{path}' type='text/coffeescript'></script>"
     else
       "<script src='#{path}' type='text/javascript'></script>"
@@ -39,17 +38,6 @@ class Project
   	  "<link href='#{path}' rel='stylesheet/less' type='text/css' />"
     else
   	  "<link href='#{path}' media='screen' rel='stylesheet' type='text/css' />"
-=======
-      "<script src='.#{path}' type='text/coffeescript'></script>"
-    else
-      "<script src='.#{path}' type='text/javascript'></script>"
-      
-  getStyleTagFor: (path) ->
-    if path.match(/less$/)
-  	  "<link href='.#{path}' rel='stylesheet/less' type='text/css' />"
-    else
-  	  "<link href='.#{path}' media='screen' rel='stylesheet' type='text/css' />"
->>>>>>> d6c40dcb20c9e25860671e1badf81230d65530d2
 
   testScriptIncludes: ->
     tags = for path in Glob(Path.join(@cwd, "test", "**", "*.#{@language()}"))
