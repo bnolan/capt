@@ -43,6 +43,10 @@ Editors supported:
 
 * Textmate bundle for testing [planned]
 
+## License
+
+[BSD Licensed](http://creativecommons.org/licenses/BSD/). YUI Compressor and Closure are licenced under their respective licences.
+
 ## Author
 
 Ben Nolan @bnolan bnolan@gmail.com

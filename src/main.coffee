@@ -39,6 +39,7 @@ task = (command, description, func) ->
 #  
 task 'server', 'start a webserver', (arguments) ->
   project = new Project(process.cwd())
+  project.targets = arguments
 
   server.get "/", (req, res, match) ->
     ejs = fs.readFileSync("#{project.root}/index.jst") + ""
@@ -52,8 +53,54 @@ task 'server', 'start a webserver', (arguments) ->
 
   server.listen(3000)
 
+task 'build', 'concatenate and minify all javascript and stylesheets for production', (arguments) ->
+  project = new Project(process.cwd())
+  project.targets = arguments
+
+  sys.puts "Building #{project.name()}..."
+
+  if project.targets.length > 0
+    sys.puts " * Targets: #{project.targets.join(', ')}"
+  else
+    sys.puts "You must specify a target (eg web)"
+
+  try
+    fs.mkdirSync "#{project.root}/build", 0755
+  catch e
+    # .. ok ..
+
+  output = "#{project.root}/build/#{project.targets[0]}"
+  
+  try
+    fs.mkdirSync output, 0755
+  catch e
+    # .. ok ..
+
+  sys.puts " * #{output}/bundled-javascript.js"
+  sys.puts "   - " + project.getScriptDependencies().join("\n   - ")
+  
+  project.bundleJavascript("#{output}/bundled-javascript.js")
+
+  sys.puts " * #{output}/bundled-stylesheet.css"
+  sys.puts "   - " + project.getStylesheetDependencies().join("\n   - ")
+
+  project.bundleStylesheet("#{output}/bundled-stylesheet.css")
+
+  sys.puts " * #{output}/index.html"
+
+  project.scriptIncludes = ->
+    project.getScriptTagFor('/bundled-javascript.js')
+  
+  project.stylesheetIncludes = ->
+    project.getStyleTagFor('/bundled-stylesheet.css')
+  
+  ejs = fs.readFileSync("#{project.root}/index.jst") + ""
+  fs.writeFileSync("#{output}/index.html", _.template(ejs, { project : project }))
+
+
 task 'watch', 'watch files and regenerate test.html and index.html as needed', (arguments) ->
   project = new Project(process.cwd())
+  project.targets = arguments
 
   timer = null
   
@@ -147,6 +194,6 @@ task 'generate controller', 'create a new controller', (arguments) ->
     fs.writeFileSync(Path.join(project.root, to), _.template(ejs, { project : project, controller : controller }))
     sys.puts "Created #{to}"
 
-  fs.mkdirSync "#{project.root}/app/controllers/views/#{controller}", 0755
+  fs.mkdirSync "#{project.root}/app/views/#{controller}", 0755
   copyFile "#{root}/templates/controllers/controller.coffee", "app/controllers/#{controller}_controller.#{project.language()}"
   copyFile "#{root}/templates/controllers/test.coffee", "test/controllers/#{controller}_controller.#{project.language()}"
