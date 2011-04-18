@@ -13,7 +13,7 @@ a{
 }
 
 #title h1{
-  background-image: url(/capt-logo.jpg);
+  background-image: url(../capt-logo.jpg);
   width: 400px;
   height: 350px;
   overflow: hidden;
