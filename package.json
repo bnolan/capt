@@ -1,0 +1,31 @@
+{
+  "name":         "capt",
+  "description":  "Command line tool for creating backbone.js applications with coffeescript",
+  "version":      "0.5.0",
+  "keywords":     ["jst", "templates", "rest", "backbone", "jquery", "zepto", "framework", "coffeescript", "less", "underscore"],
+  "homepage":     "http://bnolan.github.com/capt/",
+  "author":       "Ben Nolan <ben@nolanconsul.com>, twitter: @bnolan",
+  "licenses":     [{
+    "type":       "MIT",
+    "url":        "http://github.com/brunch/brunch/raw/master/LICENSE"
+  }],
+  "directories" : {
+    "lib" : "./lib"
+  },
+  "main" : "./lib/brunch",
+  "bin":          {
+    "capt": "./bin/capt"
+  },
+  "dependencies": {
+    "coffee-script": ">= 1.0.1",
+    "less": ">=1.0.41",
+    "glob": ">=2.0.6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bnolan/capt.git"
+  },
+  "bugs": {
+    "url": "http://github.com/bnolan/capt/issues"
+  }
+}

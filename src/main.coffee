@@ -19,7 +19,27 @@ parser = new OptionParser {
   minargs : 1
   maxargs : 10
 }
-data = parser.parse()
+
+$usage = '''
+Usage:
+  
+  capt new #projectname 
+    - create a new project
+    
+  capt server
+    - serve the current project on port 3000
+      
+  capt watch
+    - watch the current project and recompile as needed
+    
+    
+'''
+
+try
+  data = parser.parse()
+catch e
+  sys.puts $usage
+  process.exit()
 
 #
 # Raise an error
