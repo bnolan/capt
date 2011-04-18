@@ -23,7 +23,7 @@ parser = new OptionParser {
 $usage = '''
 Usage:
   
-  capt new #projectname 
+  capt new projectname 
     - create a new project
     
   capt server
