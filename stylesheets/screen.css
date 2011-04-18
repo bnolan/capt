@@ -1,0 +1,59 @@
+
+
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  color: #333;
+  line-height: 1.5em;
+}
+
+a{
+  color: #555;
+  font-weight: bold;
+}
+
+#title h1{
+  background-image: url(/capt-logo.jpg);
+  width: 400px;
+  height: 350px;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  color: transparent;
+}
+
+#title h1:hover{
+  background-position: 0 -369px;
+}
+
+h1,h2{
+  margin-bottom: 0.8em;
+}
+
+h1{
+  font-family: 'helvetica neue', sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+h2{
+  font-family: 'helvetica neue', sans-serif;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+#content{
+  margin-top: 130px;
+}
+
+code{
+  font-family: 'lucida sans';
+  background: #eee;
+}
+
+pre{
+  padding-left: 30px;
+  background: #eee;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}

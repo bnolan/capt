@@ -1,0 +1,69 @@
+---
+layout: default
+title: Capt
+---
+
+# A command line build tool
+
+I built capt to help me build single page apps. Tools like Jammit are great for when you're working in a rails environment, but I found there weren't any really good tools for building apps that are standalone, for example couchapps, or standalone javascript apps that use XMPP or access a javascript api.
+
+Imagine you're building the new twitter interface, capt is designed to build something like that.
+
+## Alpha release!
+Capt has been under development since November '10, but it's still very alpha, expect things to be missing / broken.
+
+## Create app structure
+
+Run `capt new project` to create a project directory. Capt will creates the necessary files to get you up and running and will download the latest jQuery / backbone.
+
+## Compiles .jst templates
+
+You specify what your static html is going to look like as a `.jst` file, and capt will compile your index.html. You can include the following lines:
+
+    <%= project.stylesheetIncludes() %>
+    <%= project.scriptIncludes() %>
+
+This will include seperate javascript files (in the correct dependency order) in development mode, or compile them all to one minimized file in production mode.
+
+## Serves your app
+
+You can start an express-powered webserver on port 4000 using:
+
+    capt server
+
+## Serves your jamine specs
+
+By default your app will have a `/spec/` directory that includes jasmine and an index.jst. When you create new models, you should create a spec for them in `/spec/models/` and capt will add them to your spec runner. Run the specs by browsing to `http://localhost:4000/spec/`.
+
+## Manages dependency order and autoloads
+
+Specify files in `config.yml`. The default config.yml looks like this:
+
+    javascripts:
+      - 'lib/jquery.js'
+      - 'lib/underscore.js'
+      - 'lib/backbone.js'
+      - 'lib/coffeescript.js'
+      - 'lib/less.js'
+      - 'app/controllers/*.coffee'
+      - 'app/views/**/*.coffee'
+      - 'app/models/*.coffee'
+
+    stylesheets:
+      - 'public/stylesheets/*.less'
+  
+    specs:
+      - 'spec/*/*.coffee'
+
+Add files to each section to specify build order. Files will only be included once. For example:
+
+    javascripts:
+      - 'app/models/mybaseclass.coffee'
+      - 'app/models/*.coffee'
+
+# Installation 
+
+Installation requires [npm](http://npmjs.org/), then:
+
+    npm install capt
+    

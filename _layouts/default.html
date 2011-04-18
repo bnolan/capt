@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ page.title }}</title>
+    {% if page.description %}<meta name="description" content="{{ page.description }}">{% endif %}
+    <link rel="stylesheet" href="/stylesheets/blueprint.css">
+    <link rel="stylesheet" href="/stylesheets/screen.css">
+    <link rel="alternate" type="application/atom+xml" title="github feed" href="http://github.com/bnolan/capt/commits/master.atom">
+  </head>
+  <body>
+    <div id="main" class="container">
+      <div class="span-8" id="title">
+        <h1>capt</h1>
+      </div>
+      
+      <div id="content" class="span-11 prepend-3">
+        {{ content }}
+      </div>
+    </div>
+  </body>
+</html>
