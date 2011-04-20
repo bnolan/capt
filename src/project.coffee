@@ -7,6 +7,10 @@ exec = require('child_process').exec
 _ = require("#{root}/lib/underscore")
 CoffeeScript  = require 'coffee-script'
 
+sys.puts "Capt:\n"
+sys.puts " * Using coffeescript version #{CoffeeScript.VERSION}"
+sys.puts ""
+
 String.prototype.capitalize = ->
   this.charAt(0).toUpperCase() + this.substring(1).toLowerCase()
 

@@ -17,7 +17,7 @@
     "capt": "./bin/capt"
   },
   "dependencies": {
-    "coffee-script": ">= 1.0.1",
+    "coffee-script": "= 1.0.1",
     "less": ">=1.0.41",
     "glob": ">=2.0.6"
   },
