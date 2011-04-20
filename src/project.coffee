@@ -5,6 +5,7 @@ Path = require("path")
 Glob = require("glob").globSync
 exec = require('child_process').exec
 _ = require("#{root}/lib/underscore")
+CoffeeScript  = require 'coffee-script'
 
 String.prototype.capitalize = ->
   this.charAt(0).toUpperCase() + this.substring(1).toLowerCase()
@@ -28,23 +29,17 @@ class Project
     Path.join(@cwd, "config.yml")
     
   getScriptTagFor: (path) ->
-    if path.match(/coffee$/)
-      "<script src='#{path}' type='text/coffeescript'></script>"
+    if Path.extname(path) == '.coffee'
+      jspath = Path.join(Path.dirname(path), ".js", Path.basename(path, '.coffee') + '.js')
+      "<script src='#{jspath}' type='text/javascript'></script>"
     else
       "<script src='#{path}' type='text/javascript'></script>"
       
   getStyleTagFor: (path) ->
-    if path.match(/less$/)
-  	  "<link href='#{path}' rel='stylesheet/less' type='text/css' />"
+    if Path.extname(path) == '.less'
+      "<link href='#{path}' rel='stylesheet/less' type='text/css' />"
     else
-  	  "<link href='#{path}' media='screen' rel='stylesheet' type='text/css' />"
-
-  testScriptIncludes: ->
-    tags = for path in Glob(Path.join(@cwd, "test", "**", "*.#{@language()}"))
-      script = path.replace(@cwd, '')
-      @getScriptTagFor script
-      
-    tags.join("\n")
+      "<link href='#{path}' media='screen' rel='stylesheet' type='text/css' />"
 
   bundleStylesheet : (filename) ->
     index = 0
@@ -109,6 +104,9 @@ class Project
     scripts.unique()
     
   getDependencies: (section) ->
+    if !@yaml[section]
+      throw "[ERROR] Unable to find section '#{section}' in config.yml"
+      
     result = _([])
     
     for pathspec in @yaml[section]
@@ -132,7 +130,7 @@ class Project
     tags = for css in @getStylesheetDependencies()
       @getStyleTagFor css
       
-    tags.join("\n")
+    tags.join("\n  ")
     
   specIncludes : ->
     tags = for script in @getScriptDependencies()
@@ -141,13 +139,74 @@ class Project
     for script in @getDependencies('specs')
       tags.push @getScriptTagFor script
     
-    tags.join("\n")
+    tags.join("\n  ")
 
   scriptIncludes : ->
     tags = for script in @getScriptDependencies()
       @getScriptTagFor script
       
-    tags.join("\n")
+    tags.join("\n  ")
+
+  compileFile : (file) ->
+    extension = Path.extname(file)
+    
+    if extension == ".coffee"
+      @_compileCoffee(file)
+    else if extension == ".less"
+      @_compileLess(file)
+    else if extension == ".jst"
+      @_compileJst(file)
+    else
+      # do nothing...
+
+  getWatchables : ->
+    ['/index.jst', '/spec/index.jst'].concat(
+      @getDependencies('specs')
+      @getScriptDependencies()
+      @getStylesheetDependencies()
+    )
+    
+  _compileLess : ->
+    sys.puts "project#_compileLess not implemented..."
+    
+  _compileCoffee : (file) ->
+    fs.readFile Path.join(@root, file), (err, code) =>
+      throw err if err
+
+      path = Path.join(Path.dirname(file), ".js")
+      outpath = Path.join(path, Path.basename(file, ".coffee") + ".js")
+    
+      try
+        fs.mkdirSync Path.join(@root, path), 0755
+      catch e
+        # .. ok ..
+    
+      try
+        output = CoffeeScript.compile(new String(code))
+      catch err
+        sys.puts " * Error compiling #{file}"
+        sys.puts err.message
+        return
+        
+      sys.puts " * Compiled " + outpath
+      fs.writeFileSync Path.join(@root, outpath), output
+        
+
+  _compileJst : (file) ->
+    fs.readFile Path.join(@root, file), (err, code) =>
+      throw err if err
+
+      outpath = Path.join(Path.dirname(file), Path.basename(file, '.jst') + ".html")
+      
+      try
+        output = _.template(new String(code), { project : this })
+      catch err
+        sys.puts " * Error compiling #{file}"
+        sys.puts err.message
+        return
+
+      sys.puts " * Compiled " + outpath
+      fs.writeFileSync Path.join(@root, outpath), output
     
 
 exports.Project = Project
