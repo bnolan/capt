@@ -1,7 +1,7 @@
 {
   "name":         "capt",
   "description":  "Command line tool for creating backbone.js applications with coffeescript",
-  "version":      "0.5.2",
+  "version":      "0.5.3",
   "keywords":     ["jst", "templates", "rest", "backbone", "jquery", "zepto", "framework", "coffeescript", "less", "underscore"],
   "homepage":     "http://bnolan.github.com/capt/",
   "author":       "Ben Nolan <ben@nolanconsul.com>, twitter: @bnolan",
