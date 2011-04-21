@@ -2,6 +2,10 @@
 
 `capt` is a tool to help you quickly create backbone.js applications and maintain a good directory structure and give you build tools to help development.
 
+Requirements
+
+* Glob module
+
 Development build targets:
 
 * localhost using built in server
