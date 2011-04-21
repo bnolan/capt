@@ -13,6 +13,12 @@ Imagine you're building the new twitter interface, capt is designed to build som
 
 Capt has been under development since November '10, but it's still very alpha, expect things to be missing / broken.
 
+## Installation 
+
+Installation requires [npm](http://npmjs.org/), then:
+
+    npm install capt
+    
 ## Some code generation
 
 Try this out to get an idea of what you can do.
@@ -47,13 +53,13 @@ This will include seperate javascript files (in the correct dependency order) in
 
 ## Serves your app
 
-You can start an express-powered webserver on port 4000 using:
+You can start an node-powered webserver on port 3000 using:
 
     capt server
 
 ## Serves your jamine specs
 
-By default your app will have a `/spec/` directory that includes jasmine and an index.jst. When you create new models, you should create a spec for them in `/spec/models/` and capt will add them to your spec runner. Run the specs by browsing to `http://localhost:4000/spec/`.
+By default your app will have a `/spec/` directory that includes jasmine and an index.jst. When you generate new models, capt will generate a stub spec in `/spec/models/`. Run the specs by browsing to `http://localhost:3000/spec/`.
 
 ## Manages dependency order and autoloads
 
@@ -63,7 +69,6 @@ Specify files in `config.yml`. The default config.yml looks like this:
       - 'lib/jquery.js'
       - 'lib/underscore.js'
       - 'lib/backbone.js'
-      - 'lib/coffeescript.js'
       - 'lib/less.js'
       - 'app/controllers/*.coffee'
       - 'app/views/**/*.coffee'
@@ -81,9 +86,3 @@ Add files to each section to specify build order. Files will only be included on
       - 'app/models/mybaseclass.coffee'
       - 'app/models/*.coffee'
 
-# Installation 
-
-Installation requires [npm](http://npmjs.org/), then:
-
-    npm install capt
-    
