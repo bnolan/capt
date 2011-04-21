@@ -216,5 +216,14 @@ class Project
       sys.puts " * Compiled " + outpath
       fs.writeFileSync Path.join(@root, outpath), output
     
+  watchAndBuild: ->
+    watch = (source) =>
+      fs.watchFile Path.join(@root, source), {persistent: true, interval: 500}, (curr, prev) =>
+        return if curr.size is prev.size and curr.mtime.getTime() is prev.mtime.getTime()
+        @compileFile(source)
+
+    for source in @getWatchables()
+      watch(source)
+      @compileFile(source)
 
 exports.Project = Project

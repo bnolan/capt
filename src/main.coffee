@@ -57,7 +57,6 @@ task = (command, description, func) ->
 #  
 task 'server', 'start a webserver', (arguments) ->
   project = new Project(process.cwd())
-  project.targets = arguments
 
   server.get "/", (req, res, match) ->
     ejs = fs.readFileSync("#{project.root}/index.jst") + ""
@@ -69,6 +68,7 @@ task 'server', 'start a webserver', (arguments) ->
 
   server.get /(.*)/, router.staticDirHandler(project.root, '/')
 
+  project.watchAndBuild()
   server.listen(3000)
 
 task 'build', 'concatenate and minify all javascript and stylesheets for production', (arguments) ->
@@ -118,39 +118,7 @@ task 'build', 'concatenate and minify all javascript and stylesheets for product
 
 task 'watch', 'watch files and regenerate test.html and index.html as needed', (arguments) ->
   project = new Project(process.cwd())
-  project.targets = arguments
-
-  # timer = null
-
-  watch = (source) ->
-    fs.watchFile Path.join(project.root, source), {persistent: true, interval: 500}, (curr, prev) ->
-      return if curr.size is prev.size and curr.mtime.getTime() is prev.mtime.getTime()
-      project.compileFile(source)
-
-  for source in project.getWatchables()
-    watch(source)
-    project.compileFile(source)
-
-  # doRebuild = ->
-  #   sys.puts "Rebuilt project..."
-  #   
-  #   ejs = fs.readFileSync("#{project.root}/index.jst") + ""
-  #   fs.writeFileSync("#{project.root}/index.html", _.template(ejs, { project : project }))
-  # 
-  #   ejs = fs.readFileSync("#{project.root}/spec/index.jst") + ""
-  #   fs.writeFileSync("#{project.root}/spec/index.html", _.template(ejs, { project : project }))
-  #   
-  # rebuild = ->
-  #   if timer 
-  #     clearTimeout timer
-  # 
-  #   timer = setTimeout(doRebuild, 25)
-  # 
-  # for script in project.getFilesToWatch()
-  #   fs.watchFile Path.join(project.root, script), ->
-  #     rebuild()
-  #    
-  # rebuild()
+  project.watchAndBuild()
 
 task 'new', 'create a new project', (arguments) ->
   project = arguments[0] or raise("Must supply a name for new project.")
@@ -169,6 +137,7 @@ task 'new', 'create a new project', (arguments) ->
     "lib/underscore.js" : "lib/underscore.js"
     "lib/backbone.js" : "lib/backbone.js"
     "lib/less.js" : "lib/less.js"
+    "app/controllers/application.coffee" : "controllers/application.coffee"
     "spec/jasmine/jasmine-html.js" : "lib/jasmine-html.js"
     "spec/jasmine/jasmine.css" : "lib/jasmine.css"
     "spec/jasmine/jasmine.js" : "lib/jasmine.js"
