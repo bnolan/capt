@@ -10,3 +10,8 @@ javascripts:
 stylesheets:
   - 'public/stylesheets/*.css'
   - 'public/stylesheets/*.less'
+
+specs:
+  - 'specs/*/*.coffee'
+  
+  

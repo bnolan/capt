@@ -16,7 +16,7 @@ String.prototype.capitalize = ->
 
 OptionParser = require("#{root}/lib/parseopt").OptionParser
 parser = new OptionParser {
-  minargs : 1
+  minargs : 0
   maxargs : 10
 }
 
@@ -35,11 +35,8 @@ Usage:
     
 '''
 
-try
-  data = parser.parse()
-catch e
-  sys.puts $usage
-  process.exit()
+# Parse command line
+data = parser.parse()
 
 #
 # Raise an error
@@ -53,6 +50,7 @@ task = (command, description, func) ->
   
   if data.arguments.slice(0,length).join(" ") == command
     func(data.arguments.slice(length))
+    task.done = true
     
 #
 # Start the server
@@ -65,8 +63,8 @@ task 'server', 'start a webserver', (arguments) ->
     ejs = fs.readFileSync("#{project.root}/index.jst") + ""
     _.template(ejs, { project : project })
 
-  server.get "/test/", (req, res) ->
-    ejs = fs.readFileSync("#{root}/templates/html/runner.jst") + ""
+  server.get "/spec/", (req, res) ->
+    ejs = fs.readFileSync("#{project.root}/spec/index.jst") + ""
     _.template(ejs, { project : project })
 
   server.get /(.*)/, router.staticDirHandler(project.root, '/')
@@ -159,29 +157,33 @@ task 'new', 'create a new project', (arguments) ->
 
   sys.puts " * Creating folders"
 
-  dirs = ["", "app", "app/views", "app/views/jst", "app/controllers", "app/models", "lib", "public", "public/stylesheets", "test", "test/controllers", "test/views", "test/models", "test/fixtures"]
+  dirs = ["", "spec", "spec/jasmine", "spec/models", "spec/controllers", "spec/views", "app", "app/views", "app/views/jst", "app/controllers", "app/models", "lib", "public", "public/stylesheets", "test", "test/controllers", "test/views", "test/models", "test/fixtures"]
 
   for dir in dirs
     fs.mkdirSync "#{project}/#{dir}", 0755
 
-  sys.puts " * Downloading libraries"
+  sys.puts " * Creating directory structure"
 
   libs = {
-    "lib/jquery.js" : "http://code.jquery.com/jquery-1.4.4.js", 
-    "lib/underscore.js" : "http://documentcloud.github.com/underscore/underscore.js"
-    "lib/backbone.js" : "http://documentcloud.github.com/backbone/backbone.js"
-    "lib/coffeescript.js" : "http://jashkenas.github.com/coffee-script/extras/coffee-script.js"
-    "lib/less.js" : "https://github.com/cloudhead/less.js/raw/master/dist/less-1.0.40.js"
-    "test/qunit.js" : "http://github.com/jquery/qunit/raw/master/qunit/qunit.js"
-    "test/qunit.css" : "http://github.com/jquery/qunit/raw/master/qunit/qunit.css"
-    "config.yml" : Path.join(root, "templates/config.yml")
-    "index.jst" : Path.join(root, "templates/html/index.jst")
+    "lib/jquery.js" : "lib/jquery.js", 
+    "lib/underscore.js" : "lib/underscore.js"
+    "lib/backbone.js" : "lib/backbone.js"
+    "lib/less.js" : "lib/less.js"
+    "spec/jasmine/jasmine-html.js" : "lib/jasmine-html.js"
+    "spec/jasmine/jasmine.css" : "lib/jasmine.css"
+    "spec/jasmine/jasmine.js" : "lib/jasmine.js"
+    "config.yml" : "config.yml"
+    "index.jst" : "html/index.jst"
+    "spec/index.jst" : "html/runner.jst"
   }
   
   downloadLibrary = (path, lib) ->
     request { uri : lib }, (error, response, body) ->
       if (!error && response.statusCode == 200)
+        sys.puts "   * " + Path.basename(path)
         fs.writeFileSync("#{project}/#{path}", body)
+      else
+        sys.puts "   * [ERROR] Could not download " + Path.basename(path)
 
   copyLibrary = (path, lib) ->
     fs.writeFileSync(Path.join(project, path), fs.readFileSync(lib) + "")
@@ -190,7 +192,7 @@ task 'new', 'create a new project', (arguments) ->
     if lib.match(/^http/)
       downloadLibrary(path, lib)
     else
-      copyLibrary(path, lib)
+      copyLibrary(path, Path.join(root, "templates/", lib))
     
 task 'generate model', 'create a new model', (arguments) ->
   project = new Project(process.cwd())
@@ -226,3 +228,24 @@ task 'generate controller', 'create a new controller', (arguments) ->
   fs.mkdirSync "#{project.root}/app/views/#{controller}", 0755
   copyFile "#{root}/templates/controllers/controller.coffee", "app/controllers/#{controller}_controller.#{project.language()}"
   copyFile "#{root}/templates/controllers/test.coffee", "test/controllers/#{controller}_controller.#{project.language()}"
+
+# task 'spec', 'run the specs', (arguments) ->
+#   project = new Project(process.cwd())
+# 
+#   sys.puts " * Running specs..."
+#
+#   jasmine = require('jasmine-node')
+#   
+#   runLogger = (runner, log) ->
+#     if runner.results().failedCount == 0
+#       process.exit 0
+#     else
+#       process.exit 1
+#   
+#   jasmine.executeSpecsInFolder "spec/models", runLogger, true, true
+
+# No task was specified...
+
+if !task.done
+  sys.puts $usage
+  process.exit()

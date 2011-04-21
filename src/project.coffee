@@ -7,9 +7,8 @@ exec = require('child_process').exec
 _ = require("#{root}/lib/underscore")
 CoffeeScript  = require 'coffee-script'
 
-sys.puts "Capt:\n"
+sys.puts "Capt:"
 sys.puts " * Using coffeescript version #{CoffeeScript.VERSION}"
-sys.puts ""
 
 String.prototype.capitalize = ->
   this.charAt(0).toUpperCase() + this.substring(1).toLowerCase()
@@ -18,7 +17,12 @@ class Project
   constructor: (cwd) ->
     @cwd = cwd
     @root = cwd
-    @yaml = yaml.eval(fs.readFileSync(@configPath()) + "")
+    try
+      @yaml = yaml.eval(fs.readFileSync(@configPath()) + "\n\n")
+    catch e
+      sys.puts " * [ERROR] Unable to parse config.yml"
+      sys.puts " * [ERROR] #{e.message}"
+      process.exit(-1)
 
     # Include these sections of the config.yml (eg nokia, android or web)
     @targets = []
