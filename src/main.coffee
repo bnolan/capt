@@ -174,11 +174,10 @@ task 'generate model', 'create a new model', (arguments) ->
   copyFile = (from, to) ->
     ejs = fs.readFileSync(from) + ""
     fs.writeFileSync(Path.join(project.root, to), _.template(ejs, { project : project, model : model }))
-    sys.puts "Created #{to}"
+    sys.puts " * Created #{to}"
 
   copyFile "#{root}/templates/models/model.coffee", "app/models/#{model}.#{project.language()}"
-  copyFile "#{root}/templates/models/test.coffee", "test/models/#{model}.#{project.language()}"
-  copyFile "#{root}/templates/models/fixture.yml", "test/fixtures/#{model}.yml"
+  copyFile "#{root}/templates/models/spec.coffee", "spec/models/#{model}.#{project.language()}"
 
 
 task 'generate controller', 'create a new controller', (arguments) ->
