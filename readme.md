@@ -25,23 +25,16 @@ Languages supported:
 * Coffeescript
 * Javascript
 * LESS
-* SCSS
 
 Testing framework:
 
-* Qunit
-* Jasmine [planned]
+* Jasmine
 
 Libraries built in:
 
 * jQuery
 * backbone.js
 * underscore.js
-* json2.js
-
-Editors supported:
-
-* Textmate bundle for testing [planned]
 
 ## License
 
