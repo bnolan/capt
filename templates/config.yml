@@ -12,6 +12,6 @@ stylesheets:
   - 'public/stylesheets/*.less'
 
 specs:
-  - 'specs/*/*.coffee'
+  - 'spec/*/*.coffee'
   
   

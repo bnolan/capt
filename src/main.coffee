@@ -191,11 +191,11 @@ task 'generate controller', 'create a new controller', (arguments) ->
   copyFile = (from, to) ->
     ejs = fs.readFileSync(from) + ""
     fs.writeFileSync(Path.join(project.root, to), _.template(ejs, { project : project, controller : controller }))
-    sys.puts "Created #{to}"
+    sys.puts " * Created #{to}"
 
   fs.mkdirSync "#{project.root}/app/views/#{controller}", 0755
   copyFile "#{root}/templates/controllers/controller.coffee", "app/controllers/#{controller}_controller.#{project.language()}"
-  copyFile "#{root}/templates/controllers/test.coffee", "test/controllers/#{controller}_controller.#{project.language()}"
+  copyFile "#{root}/templates/controllers/spec.coffee", "spec/controllers/#{controller}_controller.#{project.language()}"
 
 # task 'spec', 'run the specs', (arguments) ->
 #   project = new Project(process.cwd())
