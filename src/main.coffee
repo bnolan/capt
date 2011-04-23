@@ -197,6 +197,26 @@ task 'generate controller', 'create a new controller', (arguments) ->
   copyFile "#{root}/templates/controllers/controller.coffee", "app/controllers/#{controller}_controller.#{project.language()}"
   copyFile "#{root}/templates/controllers/spec.coffee", "spec/controllers/#{controller}_controller.#{project.language()}"
 
+task 'generate view', 'create a new view', (arguments) ->
+  project = new Project(process.cwd())
+
+  if arguments[0] and arguments[1]
+    controller = arguments[0].toLowerCase()
+    view = arguments[1].toLowerCase()
+  else
+    raise("Must supply a name for the controller and then view")
+
+  copyFile = (from, to) ->
+    ejs = fs.readFileSync(from) + ""
+    fs.writeFileSync(Path.join(project.root, to), _.template(ejs, { project : project, controller: controller, view : view }))
+    sys.puts " * Created #{to}"
+
+  fs.mkdirSync "#{project.root}/app/views/#{controller}", 0755
+  fs.mkdirSync "#{project.root}/spec/views/#{controller}", 0755
+
+  copyFile "#{root}/templates/views/view.coffee", "app/views/#{controller}/#{view}.#{project.language()}"
+  copyFile "#{root}/templates/views/spec.coffee", "spec/views/#{controller}/#{view}.#{project.language()}"
+
 # task 'spec', 'run the specs', (arguments) ->
 #   project = new Project(process.cwd())
 # 
