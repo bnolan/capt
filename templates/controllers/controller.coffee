@@ -4,11 +4,10 @@ class <%= controller.capitalize() %>Controller extends Backbone.Controller
     "<%= controller %>/new" : "new"
     "<%= controller %>/:id" : "show"
     "<%= controller %>" : "index"
-    
+
   index: ->
     # new <%= controller.capitalize() %>IndexView
-    
+
 @<%= controller.capitalize() %>Controller = <%= controller.capitalize() %>Controller
 
-# Instantiate    
 new <%= controller.capitalize() %>Controller
