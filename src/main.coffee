@@ -216,8 +216,15 @@ task 'generate view', 'create a new view', (arguments) ->
     fs.writeFileSync(Path.join(project.root, to), _.template(ejs, { project : project, controller: controller, view : view }))
     sys.puts " * Created #{to}"
 
-  fs.mkdirSync "#{project.root}/app/views/#{controller}", 0755
-  fs.mkdirSync "#{project.root}/spec/views/#{controller}", 0755
+  try
+    fs.mkdirSync "#{project.root}/app/views/#{controller}", 0755
+  catch e
+    # ...
+    
+  try
+    fs.mkdirSync "#{project.root}/spec/views/#{controller}", 0755
+  catch e
+    # ...
 
   copyFile "#{root}/templates/views/view.coffee", "app/views/#{controller}/#{view}.#{project.language()}"
   copyFile "#{root}/templates/views/spec.coffee", "spec/views/#{controller}/#{view}.#{project.language()}"
