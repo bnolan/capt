@@ -31,6 +31,11 @@ Usage:
       
   capt watch
     - watch the current project and recompile as needed
+
+  Code generators:
+    * capt generate model post
+    * capt generate controller posts
+    * capt generate view posts show
     
     
 '''
