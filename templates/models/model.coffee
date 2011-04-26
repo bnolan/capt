@@ -1,5 +1,5 @@
 class <%= model.capitalize() %> extends Backbone.Model
-  initializer: ->
+  initialize: ->
     # ...
 
 @<%= model.capitalize() %> = <%= model.capitalize() %>
