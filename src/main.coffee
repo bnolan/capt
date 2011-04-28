@@ -185,6 +185,23 @@ task 'generate model', 'create a new model', (arguments) ->
   copyFile "#{root}/templates/models/spec.coffee", "spec/models/#{model}.#{project.language()}"
 
 
+task 'generate collection', 'create a new collection', (arguments) ->
+  project = new Project(process.cwd())
+
+  if arguments[0]
+    model = arguments[0].toLowerCase()
+  else
+    raise("Must supply a name for the model")
+
+  copyFile = (from, to) ->
+    ejs = fs.readFileSync(from) + ""
+    fs.writeFileSync(Path.join(project.root, to), _.template(ejs, { project : project, model : model }))
+    sys.puts " * Created #{to}"
+
+  copyFile "#{root}/templates/collection/collection.coffee", "app/models/#{model}_collection.#{project.language()}"
+  copyFile "#{root}/templates/collection/spec.coffee", "spec/models/#{model}_collection.#{project.language()}"
+
+
 task 'generate controller', 'create a new controller', (arguments) ->
   project = new Project(process.cwd())
 
@@ -198,7 +215,11 @@ task 'generate controller', 'create a new controller', (arguments) ->
     fs.writeFileSync(Path.join(project.root, to), _.template(ejs, { project : project, controller : controller }))
     sys.puts " * Created #{to}"
 
-  fs.mkdirSync "#{project.root}/app/views/#{controller}", 0755
+  try
+    fs.mkdirSync "#{project.root}/app/views/#{controller}", 0755
+  catch e
+    # ...
+    
   copyFile "#{root}/templates/controllers/controller.coffee", "app/controllers/#{controller}_controller.#{project.language()}"
   copyFile "#{root}/templates/controllers/spec.coffee", "spec/controllers/#{controller}_controller.#{project.language()}"
 
