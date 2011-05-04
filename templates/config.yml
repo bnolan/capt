@@ -14,4 +14,3 @@ stylesheets:
 specs:
   - 'spec/*/*.coffee'
   
-  

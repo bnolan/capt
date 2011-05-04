@@ -47,3 +47,8 @@ Libraries built in:
 ## Author
 
 Ben Nolan @bnolan bnolan@gmail.com
+
+
+# Changelog
+
+0.5.4 - Fixed template which said `initailizer` instead of `initialize`
