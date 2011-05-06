@@ -121,7 +121,7 @@ task 'build', 'concatenate and minify all javascript and stylesheets for product
   fs.writeFileSync("#{output}/index.html", _.template(ejs, { project : project }))
 
 
-task 'watch', 'watch files and regenerate test.html and index.html as needed', (arguments) ->
+task 'watch', 'watch files and compile as needed', (arguments) ->
   project = new Project(process.cwd())
   project.watchAndBuild()
 
@@ -130,7 +130,7 @@ task 'new', 'create a new project', (arguments) ->
 
   sys.puts " * Creating folders"
 
-  dirs = ["", "spec", "spec/jasmine", "spec/models", "spec/controllers", "spec/views", "app", "app/views", "app/views/jst", "app/controllers", "app/models", "lib", "public", "public/stylesheets", "test", "test/controllers", "test/views", "test/models", "test/fixtures"]
+  dirs = ["", "spec", "spec/jasmine", "spec/models", "spec/controllers", "spec/views", "app", "app/views", "app/views/jst", "app/controllers", "app/models", "lib", "public", "public/stylesheets", "spec/fixtures"]
 
   for dir in dirs
     fs.mkdirSync "#{project}/#{dir}", 0755
