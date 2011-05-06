@@ -39,12 +39,19 @@ class Project
     
   getScriptTagFor: (path) ->
     if Path.extname(path) == '.eco'
+      # Eco templates
       jspath = Path.join(Path.dirname(path), ".js", Path.basename(path, '.eco') + '.js')
       "<script src='#{jspath}' type='text/javascript'></script>"
+    else if Path.extname(path) == '.xml'
+      # Fixtures
+      jspath = Path.join(Path.dirname(path), ".js", Path.basename(path, '.xml') + '.js')
+      "<script src='#{jspath}' type='text/javascript'></script>"
     else if Path.extname(path) == '.coffee'
+      # Coffeescript
       jspath = Path.join(Path.dirname(path), ".js", Path.basename(path, '.coffee') + '.js')
       "<script src='#{jspath}' type='text/javascript'></script>"
     else
+      # Javascript
       "<script src='#{path}' type='text/javascript'></script>"
       
   getStyleTagFor: (path) ->
@@ -164,6 +171,9 @@ class Project
       
     for script in @getDependencies('specs')
       tags.push @getScriptTagFor script
+
+    for script in @getDependencies('fixtures')
+      tags.push @getScriptTagFor script
     
     tags.join("\n  ")
 
@@ -180,6 +190,8 @@ class Project
       @_compileCoffee(file)
     else if extension == ".less"
       @_compileLess(file)
+    else if extension == ".xml"
+      @_compileXml(file)
     else if extension == ".eco"
       @_compileEco(file)
     else if extension == ".jst"
@@ -190,12 +202,39 @@ class Project
   getWatchables : ->
     ['/index.jst', '/spec/index.jst'].concat(
       @getDependencies('specs')
+      @getDependencies('fixtures')
       @getScriptDependencies()
       @getStylesheetDependencies()
     )
     
   _compileLess : ->
     sys.puts "project#_compileLess not implemented..."
+    
+  # Compile xml fixtures
+  _compileXml : (file) ->
+    fs.readFile Path.join(@root, file), "utf-8", (err, code) =>
+      throw err if err
+
+      path = Path.join(Path.dirname(file), ".js")
+      outpath = Path.join(path, Path.basename(file, ".xml") + ".js")
+
+      try
+        fs.mkdirSync Path.join(@root, path), 0755
+      catch e
+        # .. ok ..
+
+      templateName = [
+        Path.dirname(file).split("/").pop().toLowerCase()
+        Path.basename(file, ".xml").capitalize()
+      ].join("")
+      
+      output = "if(!this.$fixtures){\n  $fixtures={};\n};\n\n" + 
+        "this.$fixtures.#{templateName}=$(\"" + 
+        code.replace(/"/g,"\\\"").replace(/\n/g,"\\n") + 
+        "\");"
+      
+      sys.puts " * Compiled " + outpath
+      fs.writeFileSync Path.join(@root, outpath), output
     
   _compileCoffee : (file) ->
     fs.readFile Path.join(@root, file), (err, code) =>
