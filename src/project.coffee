@@ -7,6 +7,7 @@ exec = require('child_process').exec
 _ = require("#{root}/lib/underscore")
 CoffeeScript  = require 'coffee-script'
 eco = require "eco"
+LessParser = require('less').Parser
 
 sys.puts "Capt:"
 sys.puts " * Using coffeescript version #{CoffeeScript.VERSION}"
@@ -56,7 +57,9 @@ class Project
       
   getStyleTagFor: (path) ->
     if Path.extname(path) == '.less'
-      "<link href='#{path}' rel='stylesheet/less' type='text/css' />"
+      # LESS CSS compiler
+      csspath = Path.join(Path.dirname(path), "." + Path.basename(path, '.less') + '.css')
+      "<link href='#{csspath}' media='screen' rel='stylesheet' type='text/css' />"
     else
       "<link href='#{path}' media='screen' rel='stylesheet' type='text/css' />"
 
@@ -207,8 +210,33 @@ class Project
       @getStylesheetDependencies()
     )
     
-  _compileLess : ->
-    sys.puts "project#_compileLess not implemented..."
+  _compileLess : (file) ->
+    parser = new LessParser {
+       # Specify search paths for @import directives
+        paths: ['.', 'public/stylesheets'],
+        
+        # Specify a filename, for better error messages
+        filename: file 
+    }
+    
+    fs.readFile Path.join(@root, file), (err, code) =>
+      throw err if err
+
+      path = Path.dirname(file)
+      outpath = Path.join(path, "." + Path.basename(file, ".less") + ".css")
+    
+      try
+        fs.mkdirSync Path.join(@root, path), 0755
+      catch e
+        # .. ok ..
+
+      parser.parse code.toString(), (e, css) =>
+        if e
+          sys.puts " * Error compiling #{file}"
+          sys.puts err.message
+        else
+          sys.puts " * Compiled " + outpath
+          fs.writeFileSync Path.join(@root, outpath), css.toCSS()
     
   # Compile xml fixtures
   _compileXml : (file) ->
