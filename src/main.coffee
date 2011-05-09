@@ -78,47 +78,49 @@ task 'server', 'start a webserver', (arguments) ->
 
 task 'build', 'concatenate and minify all javascript and stylesheets for production', (arguments) ->
   project = new Project(process.cwd())
-  project.targets = arguments
 
   sys.puts "Building #{project.name()}..."
-
-  if project.targets.length > 0
-    sys.puts " * Targets: #{project.targets.join(', ')}"
-  else
-    sys.puts "You must specify a target (eg web)"
 
   try
     fs.mkdirSync "#{project.root}/build", 0755
   catch e
     # .. ok ..
 
-  output = "#{project.root}/build/#{project.targets[0]}"
+  output = "#{project.root}/build"
   
   try
     fs.mkdirSync output, 0755
   catch e
     # .. ok ..
 
-  sys.puts " * #{output}/bundled-javascript.js"
-  sys.puts "   - " + project.getScriptDependencies().join("\n   - ")
+  sys.puts " * Building css and js componenets"
+
+  # Todo - emit an event from project when the build is complete
+  project.watchAndBuild()
+
+  setTimeout( =>
+    sys.puts " * #{output}/bundled-javascript.js"
+    project.bundleJavascript("#{output}/bundled-javascript.js")
+
+    # Recompile the index.html to use the bundled urls
+    sys.puts " * #{output}/index.html"
+
+    project.scriptIncludes = ->
+      project.getScriptTagFor('/bundled-javascript.js')
+
+    project.stylesheetIncludes = ->
+      project.getStyleTagFor('/bundled-stylesheet.css')
+
+    ejs = fs.readFileSync("#{project.root}/index.jst") + ""
+    fs.writeFileSync("#{output}/index.html", _.template(ejs, { project : project }))
+
+  , 2000)
   
-  project.bundleJavascript("#{output}/bundled-javascript.js")
-
-  sys.puts " * #{output}/bundled-stylesheet.css"
-  sys.puts "   - " + project.getStylesheetDependencies().join("\n   - ")
-
-  project.bundleStylesheet("#{output}/bundled-stylesheet.css")
-
-  sys.puts " * #{output}/index.html"
-
-  project.scriptIncludes = ->
-    project.getScriptTagFor('/bundled-javascript.js')
-  
-  project.stylesheetIncludes = ->
-    project.getStyleTagFor('/bundled-stylesheet.css')
-  
-  ejs = fs.readFileSync("#{project.root}/index.jst") + ""
-  fs.writeFileSync("#{output}/index.html", _.template(ejs, { project : project }))
+  # sys.puts " * #{output}/bundled-stylesheet.css"
+  # sys.puts "   - " + project.getStylesheetDependencies().join("\n   - ")
+  # 
+  # project.bundleStylesheet("#{output}/bundled-stylesheet.css")
+  # 
 
 
 task 'watch', 'watch files and compile as needed', (arguments) ->

@@ -37,23 +37,24 @@ class Project
     
   configPath : ->
     Path.join(@cwd, "config.yml")
-    
-  getScriptTagFor: (path) ->
+
+  getScriptPathFor: (path) ->
     if Path.extname(path) == '.eco'
       # Eco templates
-      jspath = Path.join(Path.dirname(path), ".js", Path.basename(path, '.eco') + '.js')
-      "<script src='#{jspath}' type='text/javascript'></script>"
+      Path.join(Path.dirname(path), ".js", Path.basename(path, '.eco') + '.js')
     else if Path.extname(path) == '.xml'
       # Fixtures
-      jspath = Path.join(Path.dirname(path), ".js", Path.basename(path, '.xml') + '.js')
-      "<script src='#{jspath}' type='text/javascript'></script>"
+      Path.join(Path.dirname(path), ".js", Path.basename(path, '.xml') + '.js')
     else if Path.extname(path) == '.coffee'
       # Coffeescript
-      jspath = Path.join(Path.dirname(path), ".js", Path.basename(path, '.coffee') + '.js')
-      "<script src='#{jspath}' type='text/javascript'></script>"
+      Path.join(Path.dirname(path), ".js", Path.basename(path, '.coffee') + '.js')
     else
       # Javascript
-      "<script src='#{path}' type='text/javascript'></script>"
+      path
+    
+  getScriptTagFor: (path) ->
+    path = @getScriptPathFor(path)
+    "<script src='#{path}' type='text/javascript'></script>"
       
   getStyleTagFor: (path) ->
     if Path.extname(path) == '.less'
@@ -64,20 +65,22 @@ class Project
       "<link href='#{path}' media='screen' rel='stylesheet' type='text/css' />"
 
   bundleStylesheet : (filename) ->
-    index = 0
-    
-    inputs = for script in @getStylesheetDependencies()
-      index++
-      if script.match /less$/
-        exec("lessc #{@root}#{script} > /tmp/#{index}.css")
-        "\"/tmp/#{index}.css\""
-      else
-        "\"#{@root}#{script}\""
-
-    inputs = inputs.join " "
-
-    # sys.puts("sleep 5; cat #{inputs} > /tmp/stylesheet.css; java -jar #{root}/bin/yuicompressor-2.4.2.jar --type css --charset utf-8 /tmp/stylesheet.css -o #{filename}")
-    exec("sleep 5; cat #{inputs} > /tmp/stylesheet.css; java -jar #{root}/bin/yuicompressor-2.4.2.jar --type css --charset utf-8 /tmp/stylesheet.css -o #{filename}")
+    console.log "Bundle Stylesheet not implemented..."
+    # 
+    # index = 0
+    # 
+    # inputs = for script in @getStylesheetDependencies()
+    #   index++
+    #   if script.match /less$/
+    #     exec("lessc #{@root}#{script} > /tmp/#{index}.css")
+    #     "\"/tmp/#{index}.css\""
+    #   else
+    #     "\"#{@root}#{script}\""
+    # 
+    # inputs = inputs.join " "
+    # 
+    # # sys.puts("sleep 5; cat #{inputs} > /tmp/stylesheet.css; java -jar #{root}/bin/yuicompressor-2.4.2.jar --type css --charset utf-8 /tmp/stylesheet.css -o #{filename}")
+    # exec("sleep 5; cat #{inputs} > /tmp/stylesheet.css; java -jar #{root}/bin/yuicompressor-2.4.2.jar --type css --charset utf-8 /tmp/stylesheet.css -o #{filename}")
 
 
   # createManifest : ->
@@ -91,14 +94,7 @@ class Project
     index = 0
     
     inputs = for script in @getScriptDependencies()
-      index++
-      if script.match /coffee$/
-        path = Path.join(Path.dirname(script), ".js")
-        outpath = Path.join(path, Path.basename(script, ".coffee") + ".js")
-        # exec("coffee -p -c #{@root}#{script} > #{outpath}")
-        Path.join(@root, outpath)
-      else
-        Path.join(@root, script)
+      path = Path.join(@root, @getScriptPathFor(script))
 
     inputs = inputs.join " "
 
@@ -106,7 +102,7 @@ class Project
     # sys.puts "java -jar #{root}/bin/compiler.jar #{inputs} --js_output_file #{filename}"
 
     # exec("java -jar #{root}/bin/compiler.jar --compilation_level WHITESPACE_ONLY #{inputs} --js_output_file #{filename}")
-    sys.puts("cat #{inputs} > #{filename}")
+    # sys.puts("cat #{inputs} > #{filename}")
     exec("cat #{inputs} > #{filename}")
     
   getFilesToWatch : ->
