@@ -8,9 +8,10 @@ javascripts:
   - 'app/models/*.coffee'
 
 stylesheets:
-  - 'public/stylesheets/*.css'
   - 'public/stylesheets/*.less'
 
 specs:
   - 'spec/*/*.coffee'
   
+templates:
+  - 'app/templates/*/*.eco'

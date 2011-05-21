@@ -42,6 +42,9 @@ class Project
     if Path.extname(path) == '.eco'
       # Eco templates
       Path.join(Path.dirname(path), ".js", Path.basename(path, '.eco') + '.js')
+    else if Path.extname(path) == '.json'
+      # Fixtures
+      Path.join(Path.dirname(path), ".js", Path.basename(path, '.json') + '.js')
     else if Path.extname(path) == '.xml'
       # Fixtures
       Path.join(Path.dirname(path), ".js", Path.basename(path, '.xml') + '.js')
@@ -105,11 +108,6 @@ class Project
     # sys.puts("cat #{inputs} > #{filename}")
     exec("cat #{inputs} > #{filename}")
     
-  getFilesToWatch : ->
-    result = @getScriptDependencies()
-    result.push 'index.jst'
-    result
-    
   getScriptDependencies : () ->
     [].concat(
       @getDependencies('javascripts')
@@ -136,6 +134,9 @@ class Project
     
   getDependencies: (section) ->
     if !@yaml[section]
+      if section == 'static'
+        return ['/index.jst', '/spec/index.jst']
+        
       sys.puts "[WARNING] Unable to find section '#{section}' in config.yml"
       return []
       
@@ -191,6 +192,8 @@ class Project
       @_compileLess(file)
     else if extension == ".xml"
       @_compileXml(file)
+    else if extension == ".json"
+      @_compileJson(file)
     else if extension == ".eco"
       @_compileEco(file)
     else if extension == ".jst"
@@ -199,7 +202,8 @@ class Project
       # do nothing...
 
   getWatchables : ->
-    ['/index.jst', '/spec/index.jst'].concat(
+    [].concat(
+      @getDependencies('static')
       @getDependencies('specs')
       @getDependencies('fixtures')
       @getScriptDependencies()
@@ -260,6 +264,30 @@ class Project
       sys.puts " * Compiled " + outpath
       fs.writeFileSync Path.join(@root, outpath), output
     
+  # Compile json fixtures
+  _compileJson : (file) ->
+    fs.readFile Path.join(@root, file), "utf-8", (err, code) =>
+      throw err if err
+
+      path = Path.join(Path.dirname(file), ".js")
+      outpath = Path.join(path, Path.basename(file, ".json") + ".js")
+
+      try
+        fs.mkdirSync Path.join(@root, path), 0755
+      catch e
+        # .. ok ..
+
+      templateName = [
+        Path.dirname(file).split("/").pop().toLowerCase()
+        Path.basename(file, ".json").capitalize()
+      ].join("")
+
+      output = "if(!this.$fixtures){\n  $fixtures={};\n};\n\n" + 
+        "this.$fixtures.#{templateName}=" + code.toString() + ";"
+
+      sys.puts " * Compiled " + outpath
+      fs.writeFileSync Path.join(@root, outpath), output
+
   _compileCoffee : (file) ->
     fs.readFile Path.join(@root, file), (err, code) =>
       throw err if err
