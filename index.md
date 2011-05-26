@@ -13,6 +13,10 @@ Imagine you're building the new twitter interface, capt is designed to build som
 
 Capt has been under development since November '10, but it's still very alpha, expect things to be missing / broken.
 
+## Tutorial
+
+There is a [tutorial here](/tutorial.html), it's incomplete, feel free to clone the documentation [branch](https://github.com/bnolan/capt/tree/gh-pages) and send me push requests.
+
 ## Installation 
 
 Installation requires [npm](http://npmjs.org/), then:
@@ -85,4 +89,3 @@ Add files to each section to specify build order. Files will only be included on
     javascripts:
       - 'app/models/mybaseclass.coffee'
       - 'app/models/*.coffee'
-
