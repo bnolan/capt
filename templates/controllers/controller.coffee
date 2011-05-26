@@ -9,5 +9,3 @@ class <%= controller.capitalize() %>Controller extends Backbone.Controller
     # new <%= controller.capitalize() %>IndexView
 
 @<%= controller.capitalize() %>Controller = <%= controller.capitalize() %>Controller
-
-new <%= controller.capitalize() %>Controller

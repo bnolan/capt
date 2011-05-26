@@ -1,19 +1,24 @@
-describe '<%= view %> view', ->
+describe '<%= controller %> controller', ->
 
-  it 'should handle the truth', ->
-    expect(true).toBeTruthy()
+  describe '<%= view %> view', ->
 
-  it 'should exist', ->
-    expect(<%= view.capitalize() %>View).toBeTruthy()
+    it 'should handle the truth', ->
+      expect(true).toBeTruthy()
 
-  it 'should instantiate', ->
-    x = new <%= view.capitalize() %>View
-    expect(x instanceof <%= view.capitalize() %>View).toBeTruthy()
-    expect(x instanceof Backbone.View).toBeTruthy()
+    it 'should exist', ->
+      expect(<%= controller.capitalize() %><%= view.capitalize() %>View).toBeTruthy()
 
-  it 'should have render method', ->
-    x = new <%= view.capitalize() %>View
-    x.render()
+    it 'should instantiate', ->
+      x = new <%= controller.capitalize() %><%= view.capitalize() %>View
+      expect(x instanceof <%= controller.capitalize() %><%= view.capitalize() %>View).toBeTruthy()
+      expect(x instanceof Backbone.View).toBeTruthy()
 
-    # Umm..?
-    expect(true).toBeTruthy()
+    it 'should have render method', ->
+      x = new <%= controller.capitalize() %><%= view.capitalize() %>View
+      x.render()
+
+    # Implement as you see fit
+    xit 'should render some text', ->
+      x = new <%= controller.capitalize() %><%= view.capitalize() %>View { el : $("<div />") }
+      x.render()
+      expect(x.$(".myselector").html()).toMatch /some text/

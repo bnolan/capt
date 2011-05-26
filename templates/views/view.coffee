@@ -1,6 +1,7 @@
-class <%= view.capitalize() %>View extends Backbone.View
+class <%= controller.capitalize() %><%= view.capitalize() %>View extends Backbone.View
   initialize: ->
-
+    
   render: ->
+    $(@el).html("blah!")
 
-@<%= view.capitalize() %>View = <%= view.capitalize() %>View
+@<%= controller.capitalize() %><%= view.capitalize() %>View = <%= controller.capitalize() %><%= view.capitalize() %>View

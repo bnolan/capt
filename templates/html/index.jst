@@ -10,8 +10,10 @@
   Hello world.
 
   <script>
+    window.app = new Application;
+
     $(document).ready(function(){
-      window.app = new Application;
+      app.start();
     });
   </script>
 </body>

@@ -12,6 +12,7 @@ stylesheets:
 
 specs:
   - 'spec/*/*.coffee'
+  - 'spec/views/*/*.coffee'
   
 templates:
   - 'app/templates/*/*.eco'

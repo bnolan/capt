@@ -132,7 +132,7 @@ task 'new', 'create a new project', (arguments) ->
 
   sys.puts " * Creating folders"
 
-  dirs = ["", "spec", "spec/jasmine", "spec/models", "spec/controllers", "spec/views", "app", "app/views", "app/views/jst", "app/controllers", "app/models", "lib", "public", "public/stylesheets", "spec/fixtures"]
+  dirs = ["", "spec", "spec/jasmine", "spec/models", "spec/controllers", "spec/views", "app", "app/views", "app/views/templates", "app/controllers", "app/models", "lib", "public", "public/stylesheets", "spec/fixtures"]
 
   for dir in dirs
     fs.mkdirSync "#{project}/#{dir}", 0755
@@ -219,6 +219,7 @@ task 'generate controller', 'create a new controller', (arguments) ->
 
   try
     fs.mkdirSync "#{project.root}/app/views/#{controller}", 0755
+    fs.mkdirSync "#{project.root}/app/templates/#{controller}", 0755
   catch e
     # ...
     
@@ -235,21 +236,18 @@ task 'generate view', 'create a new view', (arguments) ->
     raise("Must supply a name for the controller and then view")
 
   copyFile = (from, to) ->
-    ejs = fs.readFileSync(from) + ""
+    ejs = fs.readFileSync(from).toString()
     fs.writeFileSync(Path.join(project.root, to), _.template(ejs, { project : project, controller: controller, view : view }))
     sys.puts " * Created #{to}"
 
-  try
+  if !Path.existsSync("#{project.root}/app/views/#{controller}")
     fs.mkdirSync "#{project.root}/app/views/#{controller}", 0755
-  catch e
-    # ...
-    
-  try
-    fs.mkdirSync "#{project.root}/spec/views/#{controller}", 0755
-  catch e
-    # ...
+
+  if !Path.existsSync("#{project.root}/app/templates/#{controller}")
+    fs.mkdirSync "#{project.root}/app/templates/#{controller}", 0755
 
   copyFile "#{root}/templates/views/view.coffee", "app/views/#{controller}/#{view}.#{project.language()}"
+  copyFile "#{root}/templates/templates/template.eco", "app/templates/#{controller}/#{view}.eco"
   copyFile "#{root}/templates/views/spec.coffee", "spec/views/#{controller}/#{view}.#{project.language()}"
 
 # task 'spec', 'run the specs', (arguments) ->
