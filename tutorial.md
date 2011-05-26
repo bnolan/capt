@@ -83,7 +83,7 @@ Result:
 
 You can access the model in `/app/models`. If you load `/spec/` - you will see the specs run for your new model and collection.
 
-<img src="/images/capt-specs.png" />
+<img src="images/capt-specs.png" />
 
 ## Creating a controller, view and getting things started
 
@@ -136,7 +136,7 @@ Generates these files:
     
 This will create a view, template and specs. If you restart your server (ctrl-c then `capt watch` again), capt will pick up the new views and when you re-run the specs you should get even more specs:
 
-<img src="/images/moar-specs.png" />
+<img src="images/moar-specs.png" />
 
 If you look in `spec/views/notes/index.coffee` you'll see there is a disabled spec (xit) which renders the view and searches for some content in the rendered view. Once you have some content in your template you should enable this view to ensure your view renders correctly.
 
