@@ -111,8 +111,10 @@ task 'build', 'concatenate and minify all javascript and stylesheets for product
     project.stylesheetIncludes = ->
       project.getStyleTagFor('/bundled-stylesheet.css')
 
-    ejs = fs.readFileSync("#{project.root}/index.jst") + ""
-    fs.writeFileSync("#{output}/index.html", _.template(ejs, { project : project }))
+    for file in project.getDependencies('static')
+      project.compileFile(file)
+    # ejs = fs.readFileSync("#{project.root}/index.jst") + ""
+    # fs.writeFileSync("#{output}/index.html", _.template(ejs, { project : project }))
 
   , 2000)
   

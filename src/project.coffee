@@ -167,13 +167,13 @@ class Project
     
   specIncludes : ->
     tags = for script in @getScriptDependencies()
-      @getScriptTagFor script
+      @getScriptTagFor(Path.join("..", script))
       
     for script in @getDependencies('specs')
-      tags.push @getScriptTagFor script
+      tags.push @getScriptTagFor(Path.join("..", script))
 
     for script in @getDependencies('fixtures')
-      tags.push @getScriptTagFor script
+      tags.push @getScriptTagFor(Path.join("..", script))
     
     tags.join("\n  ")
 
