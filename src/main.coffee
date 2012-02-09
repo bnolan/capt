@@ -96,20 +96,21 @@ task 'build', 'concatenate and minify all javascript and stylesheets for product
   sys.puts " * Building css and js componenets"
 
   # Todo - emit an event from project when the build is complete
-  project.watchAndBuild()
+  project.build()
 
   setTimeout( =>
     sys.puts " * #{output}/bundled-javascript.js"
     project.bundleJavascript("#{output}/bundled-javascript.js")
+    project.bundleStylesheet("#{output}/bundled-stylesheet.css")
 
     # Recompile the index.html to use the bundled urls
     sys.puts " * #{output}/index.html"
 
     project.scriptIncludes = ->
-      project.getScriptTagFor('/bundled-javascript.js')
+      project.getScriptTagFor('./build/bundled-javascript.js')
 
     project.stylesheetIncludes = ->
-      project.getStyleTagFor('/bundled-stylesheet.css')
+      project.getStyleTagFor('./build/bundled-stylesheet.css')
 
     for file in project.getDependencies('static')
       project.compileFile(file)

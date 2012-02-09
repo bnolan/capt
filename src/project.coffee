@@ -2,7 +2,7 @@ fs = require('fs')
 sys = require('sys')
 yaml = require("#{root}/lib/yaml")
 Path = require("path")
-Glob = require("glob").globSync
+Glob = require("glob")
 exec = require('child_process').exec
 _ = require("#{root}/lib/underscore")
 CoffeeScript  = require 'coffee-script'
@@ -68,22 +68,14 @@ class Project
       "<link href='#{path}' media='screen' rel='stylesheet' type='text/css' />"
 
   bundleStylesheet : (filename) ->
-    console.log "Bundle Stylesheet not implemented..."
-    # 
-    # index = 0
-    # 
-    # inputs = for script in @getStylesheetDependencies()
-    #   index++
-    #   if script.match /less$/
-    #     exec("lessc #{@root}#{script} > /tmp/#{index}.css")
-    #     "\"/tmp/#{index}.css\""
-    #   else
-    #     "\"#{@root}#{script}\""
-    # 
-    # inputs = inputs.join " "
-    # 
-    # # sys.puts("sleep 5; cat #{inputs} > /tmp/stylesheet.css; java -jar #{root}/bin/yuicompressor-2.4.2.jar --type css --charset utf-8 /tmp/stylesheet.css -o #{filename}")
-    # exec("sleep 5; cat #{inputs} > /tmp/stylesheet.css; java -jar #{root}/bin/yuicompressor-2.4.2.jar --type css --charset utf-8 /tmp/stylesheet.css -o #{filename}")
+    index = 0
+    
+    inputs = for sheet in @getStylesheetDependencies()
+      path = Path.join(@root, @getScriptPathFor(sheet))
+
+    inputs = inputs.join " "
+
+    exec("cat #{inputs} > #{filename}")
 
 
   # createManifest : ->
@@ -143,8 +135,8 @@ class Project
     result = _([])
     
     for pathspec in @yaml[section]
-      for path in Glob(Path.join(@cwd, pathspec))
-        path = path.replace(@cwd, '').replace(/^[.\/]+/,'/')
+      for path in Glob(Path.join(@cwd, pathspec), { sync : true })
+        path = path.replace(@cwd, '').replace(/^[.\/]+/,'')
         result.push path
 
     result.value()
@@ -153,8 +145,8 @@ class Project
     result = _([])
 
     for pathspec in @yaml.stylesheets
-      for path in Glob(Path.join(@cwd, pathspec))
-        path = path.replace(@cwd, '')
+      for path in Glob(Path.join(@cwd, pathspec), { sync : true })
+        path = path.replace(@cwd, '').replace(/^[.\/]+/,'')
         result.push path
         
     result.unique()
@@ -233,7 +225,7 @@ class Project
       parser.parse code.toString(), (e, css) =>
         if e
           sys.puts " * Error compiling #{file}"
-          sys.puts err.message
+          sys.puts "   #{e.message}"
         else
           sys.puts " * Compiled " + outpath
           fs.writeFileSync Path.join(@root, outpath), css.toCSS()
@@ -334,7 +326,7 @@ class Project
         Path.basename(file, ".eco").capitalize()
       ].join("")
       
-      output = output.replace(/^module.exports/, "this.$templates.#{templateName}")
+      output = "this.$templates.#{templateName} = " + output
       output = "if(!this.$templates){\n  $templates={};\n};\n\n" + output
       
       sys.puts " * Compiled " + outpath
@@ -356,6 +348,10 @@ class Project
       sys.puts " * Compiled " + outpath
       fs.writeFileSync Path.join(@root, outpath), output
     
+  build: ->
+    for source in @getWatchables()
+      @compileFile(source)
+
   watchAndBuild: ->
     watch = (source) =>
       fs.watchFile Path.join(@root, source), {persistent: true, interval: 500}, (curr, prev) =>
