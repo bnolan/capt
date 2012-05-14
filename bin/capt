@@ -4,9 +4,3 @@ root = __dirname + "/.."
 
 require("coffee-script")
 require(root + "/src/main.coffee")
-// 
-// var path = require('path');
-// var fs   = require('fs');
-// var lib  = path.join(path.dirname(fs.realpathSync(__filename)), '../lib');
-// 
-// require(lib + '/cake').run();

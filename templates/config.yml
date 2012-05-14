@@ -14,5 +14,8 @@ specs:
   - 'spec/*/*.coffee'
   - 'spec/views/*/*.coffee'
   
+fixtures:
+  
 templates:
+  - 'app/templates/*.eco'
   - 'app/templates/*/*.eco'

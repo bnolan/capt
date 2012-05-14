@@ -34,7 +34,7 @@ Usage:
 
   Code generators:
     * capt generate model post
-    * capt generate controller posts
+    * capt generate router posts
     * capt generate view posts show
     
     
@@ -135,7 +135,7 @@ task 'new', 'create a new project', (arguments) ->
 
   sys.puts " * Creating folders"
 
-  dirs = ["", "spec", "spec/jasmine", "spec/models", "spec/controllers", "spec/views", "app", "app/views", "app/views/templates", "app/controllers", "app/models", "lib", "public", "public/stylesheets", "spec/fixtures"]
+  dirs = ["", "spec", "spec/jasmine", "spec/models", "spec/routers", "spec/views", "app", "app/views", "app/templates", "app/routers", "app/models", "lib", "public", "public/stylesheets", "spec/fixtures"]
 
   for dir in dirs
     fs.mkdirSync "#{project}/#{dir}", 0755
@@ -147,7 +147,7 @@ task 'new', 'create a new project', (arguments) ->
     "lib/underscore.js" : "lib/underscore.js"
     "lib/backbone.js" : "lib/backbone.js"
     "lib/less.js" : "lib/less.js"
-    "app/controllers/application.coffee" : "controllers/application.coffee"
+    "app/routers/application.coffee" : "routers/application.coffee"
     "spec/jasmine/jasmine-html.js" : "lib/jasmine-html.js"
     "spec/jasmine/jasmine.css" : "lib/jasmine.css"
     "spec/jasmine/jasmine.js" : "lib/jasmine.js"
@@ -207,51 +207,52 @@ task 'generate collection', 'create a new collection', (arguments) ->
   copyFile "#{root}/templates/collection/spec.coffee", "spec/models/#{model}_collection.#{project.language()}"
 
 
-task 'generate controller', 'create a new controller', (arguments) ->
+task 'generate router', 'create a new router', (arguments) ->
   project = new Project(process.cwd())
 
   if arguments[0]
-    controller = arguments[0].toLowerCase()
+    router = arguments[0].toLowerCase()
   else
-    raise("Must supply a name for the controller")
+    raise("Must supply a name for the router")
 
   copyFile = (from, to) ->
     ejs = fs.readFileSync(from) + ""
-    fs.writeFileSync(Path.join(project.root, to), _.template(ejs, { project : project, controller : controller }))
+    fs.writeFileSync(Path.join(project.root, to), _.template(ejs, { project : project, router : router }))
     sys.puts " * Created #{to}"
 
   try
-    fs.mkdirSync "#{project.root}/app/views/#{controller}", 0755
-    fs.mkdirSync "#{project.root}/app/templates/#{controller}", 0755
+    fs.mkdirSync "#{project.root}/app/views/#{router}", 0755
+    fs.mkdirSync "#{project.root}/spec/views/#{router}", 0755
+    fs.mkdirSync "#{project.root}/app/templates/#{router}", 0755
   catch e
     # ...
     
-  copyFile "#{root}/templates/controllers/controller.coffee", "app/controllers/#{controller}_controller.#{project.language()}"
-  copyFile "#{root}/templates/controllers/spec.coffee", "spec/controllers/#{controller}_controller.#{project.language()}"
+  copyFile "#{root}/templates/routers/router.coffee", "app/routers/#{router}_router.#{project.language()}"
+  copyFile "#{root}/templates/routers/spec.coffee", "spec/routers/#{router}_router.#{project.language()}"
 
 task 'generate view', 'create a new view', (arguments) ->
   project = new Project(process.cwd())
 
   if arguments[0] and arguments[1]
-    controller = arguments[0].toLowerCase()
+    router = arguments[0].toLowerCase()
     view = arguments[1].toLowerCase()
   else
-    raise("Must supply a name for the controller and then view")
+    raise("Must supply a name for the router and then view")
 
   copyFile = (from, to) ->
     ejs = fs.readFileSync(from).toString()
-    fs.writeFileSync(Path.join(project.root, to), _.template(ejs, { project : project, controller: controller, view : view }))
+    fs.writeFileSync(Path.join(project.root, to), _.template(ejs, { project : project, router: router, view : view }))
     sys.puts " * Created #{to}"
 
-  if !Path.existsSync("#{project.root}/app/views/#{controller}")
-    fs.mkdirSync "#{project.root}/app/views/#{controller}", 0755
+  if !Path.existsSync("#{project.root}/app/views/#{router}")
+    fs.mkdirSync "#{project.root}/app/views/#{router}", 0755
 
-  if !Path.existsSync("#{project.root}/app/templates/#{controller}")
-    fs.mkdirSync "#{project.root}/app/templates/#{controller}", 0755
+  if !Path.existsSync("#{project.root}/app/templates/#{router}")
+    fs.mkdirSync "#{project.root}/app/templates/#{router}", 0755
 
-  copyFile "#{root}/templates/views/view.coffee", "app/views/#{controller}/#{view}.#{project.language()}"
-  copyFile "#{root}/templates/templates/template.eco", "app/templates/#{controller}/#{view}.eco"
-  copyFile "#{root}/templates/views/spec.coffee", "spec/views/#{controller}/#{view}.#{project.language()}"
+  copyFile "#{root}/templates/views/view.coffee", "app/views/#{router}/#{view}.#{project.language()}"
+  copyFile "#{root}/templates/templates/template.eco", "app/templates/#{router}/#{view}.eco"
+  copyFile "#{root}/templates/views/spec.coffee", "spec/views/#{router}/#{view}.#{project.language()}"
 
 # task 'spec', 'run the specs', (arguments) ->
 #   project = new Project(process.cwd())

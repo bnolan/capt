@@ -164,8 +164,8 @@ class Project
     for script in @getDependencies('specs')
       tags.push @getScriptTagFor(Path.join("..", script))
 
-    for script in @getDependencies('fixtures')
-      tags.push @getScriptTagFor(Path.join("..", script))
+    # for script in @getDependencies('fixtures')
+    #   tags.push @getScriptTagFor(Path.join("..", script))
     
     tags.join("\n  ")
 
@@ -197,7 +197,7 @@ class Project
     [].concat(
       @getDependencies('static')
       @getDependencies('specs')
-      @getDependencies('fixtures')
+      # @getDependencies('fixtures')
       @getScriptDependencies()
       @getStylesheetDependencies()
     )
@@ -231,54 +231,54 @@ class Project
           fs.writeFileSync Path.join(@root, outpath), css.toCSS()
     
   # Compile xml fixtures
-  _compileXml : (file) ->
-    fs.readFile Path.join(@root, file), "utf-8", (err, code) =>
-      throw err if err
-
-      path = Path.join(Path.dirname(file), ".js")
-      outpath = Path.join(path, Path.basename(file, ".xml") + ".js")
-
-      try
-        fs.mkdirSync Path.join(@root, path), 0755
-      catch e
-        # .. ok ..
-
-      templateName = [
-        Path.dirname(file).split("/").pop().toLowerCase()
-        Path.basename(file, ".xml").capitalize()
-      ].join("")
-      
-      output = "if(!this.$fixtures){\n  $fixtures={};\n};\n\n" + 
-        "this.$fixtures.#{templateName}=$(\"" + 
-        code.replace(/"/g,"\\\"").replace(/\n/g,"\\n") + 
-        "\");"
-      
-      sys.puts " * Compiled " + outpath
-      fs.writeFileSync Path.join(@root, outpath), output
+  # _compileXml : (file) ->
+  #   fs.readFile Path.join(@root, file), "utf-8", (err, code) =>
+  #     throw err if err
+  # 
+  #     path = Path.join(Path.dirname(file), ".js")
+  #     outpath = Path.join(path, Path.basename(file, ".xml") + ".js")
+  # 
+  #     try
+  #       fs.mkdirSync Path.join(@root, path), 0755
+  #     catch e
+  #       # .. ok ..
+  # 
+  #     templateName = [
+  #       Path.dirname(file).split("/").pop().toLowerCase()
+  #       Path.basename(file, ".xml").capitalize()
+  #     ].join("")
+  #     
+  #     output = "if(!this.$fixtures){\n  $fixtures={};\n};\n\n" + 
+  #       "this.$fixtures.#{templateName}=$(\"" + 
+  #       code.replace(/"/g,"\\\"").replace(/\n/g,"\\n") + 
+  #       "\");"
+  #     
+  #     sys.puts " * Compiled " + outpath
+  #     fs.writeFileSync Path.join(@root, outpath), output
     
   # Compile json fixtures
-  _compileJson : (file) ->
-    fs.readFile Path.join(@root, file), "utf-8", (err, code) =>
-      throw err if err
-
-      path = Path.join(Path.dirname(file), ".js")
-      outpath = Path.join(path, Path.basename(file, ".json") + ".js")
-
-      try
-        fs.mkdirSync Path.join(@root, path), 0755
-      catch e
-        # .. ok ..
-
-      templateName = [
-        Path.dirname(file).split("/").pop().toLowerCase()
-        Path.basename(file, ".json").capitalize()
-      ].join("")
-
-      output = "if(!this.$fixtures){\n  $fixtures={};\n};\n\n" + 
-        "this.$fixtures.#{templateName}=" + code.toString() + ";"
-
-      sys.puts " * Compiled " + outpath
-      fs.writeFileSync Path.join(@root, outpath), output
+  # _compileJson : (file) ->
+  #   fs.readFile Path.join(@root, file), "utf-8", (err, code) =>
+  #     throw err if err
+  # 
+  #     path = Path.join(Path.dirname(file), ".js")
+  #     outpath = Path.join(path, Path.basename(file, ".json") + ".js")
+  # 
+  #     try
+  #       fs.mkdirSync Path.join(@root, path), 0755
+  #     catch e
+  #       # .. ok ..
+  # 
+  #     templateName = [
+  #       Path.dirname(file).split("/").pop().toLowerCase()
+  #       Path.basename(file, ".json").capitalize()
+  #     ].join("")
+  # 
+  #     output = "if(!this.$fixtures){\n  $fixtures={};\n};\n\n" + 
+  #       "this.$fixtures.#{templateName}=" + code.toString() + ";"
+  # 
+  #     sys.puts " * Compiled " + outpath
+  #     fs.writeFileSync Path.join(@root, outpath), output
 
   _compileCoffee : (file) ->
     fs.readFile Path.join(@root, file), (err, code) =>
